@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>고보현선생님과 함께 하는 복습 집 짓기 활동!!!</title>
+    <title>고보현선생님과 함께 하는 복습 집 짓기</title>
     <style>
         :root { --main-bg: #f1f8e9; --accent: #2e7d32; }
         body { margin: 0; background: var(--main-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
@@ -94,46 +94,47 @@
 
 <script>
 const quizData = [
-    // --- Vocabulary (23개 표현 반영) ---
-    {q: "What does 'active' mean?", a: "활동적인", c: ["활동적인", "조용한", "창의적인"]},
-    {q: "What does 'cartoon' mean?", a: "만화", c: ["만화", "영화", "포스터"]},
-    {q: "What does 'conversation' mean?", a: "대화", c: ["대화", "독백", "발표"]},
-    {q: "What does 'cotton candy' mean?", a: "솜사탕", c: ["솜사탕", "사탕발림", "꿀벌"]},
-    {q: "What does 'friendly' mean?", a: "친절한", c: ["친절한", "똑똑한", "흥미로운"]},
-    {q: "What does 'honeybee' mean?", a: "꿀벌", c: ["꿀벌", "바다거북", "개미"]},
-    {q: "What does 'liar' mean?", a: "거짓말쟁이", c: ["거짓말쟁이", "정직한 사람", "등장인물"]},
-    {q: "What does 'perfect' mean?", a: "완벽한", c: ["완벽한", "부족한", "새로운"]},
-    {q: "What does 'poster' mean?", a: "포스터", c: ["포스터", "교과서", "생각"]},
-    {q: "What does 'smart' mean?", a: "똑똑한", c: ["똑똑한", "상냥한", "활동적인"]},
-    {q: "What does 'thought' mean?", a: "생각", c: ["생각", "과목", "대화"]},
-    {q: "What does 'turtle' mean?", a: "바다거북", c: ["바다거북", "꿀벌", "거짓말쟁이"]},
-    {q: "What does 'a lot' mean?", a: "많이", c: ["많이", "조금", "자주"]},
-    {q: "What is the second meaning of 'sweet'?", a: "상냥한", c: ["상냥한", "활동적인", "딱딱한"]},
-    {q: "Meaning: 'a talk between people'", a: "conversation", c: ["conversation", "thought", "subject"]},
-    {q: "Meaning: 'without effort, pain, or trouble'", a: "easily", c: ["easily", "really", "perfect"]},
-    {q: "Meaning: 'a bee that makes honey'", a: "honeybee", c: ["honeybee", "active", "turtle"]},
-    {q: "Meaning: 'to get pleasure from something'", a: "enjoy", c: ["enjoy", "share", "active"]},
-    {q: "Meaning: 'to use something with other people'", a: "share", c: ["share", "enjoy", "creative"]},
-    {q: "Meaning: 'not having any mistakes or damage'", a: "perfect", c: ["perfect", "smart", "interesting"]},
-    {q: "Meaning: 'being in agreement'", a: "in harmony with", c: ["in harmony with", "a lot", "really"]},
+    // --- 어휘 의미 (image_7a4e89.jpg 기반) ---
+    {q: "'active'의 뜻은 무엇인가요?", a: "활동적인", c: ["활동적인", "조용한", "창의적인"]},
+    {q: "'cartoon'의 뜻은 무엇인가요?", a: "만화", c: ["만화", "영화", "포스터"]},
+    {q: "'conversation'의 뜻은 무엇인가요?", a: "대화", c: ["대화", "독백", "발표"]},
+    {q: "'cotton candy'의 뜻은 무엇인가요?", a: "솜사탕", c: ["솜사탕", "사탕발림", "꿀벌"]},
+    {q: "'friendly'의 뜻은 무엇인가요?", a: "친절한", c: ["친절한", "똑똑한", "흥미로운"]},
+    {q: "'honeybee'의 뜻은 무엇인가요?", a: "꿀벌", c: ["꿀벌", "바다거북", "개미"]},
+    {q: "'liar'의 뜻은 무엇인가요?", a: "거짓말쟁이", c: ["거짓말쟁이", "정직한 사람", "등장인물"]},
+    {q: "'perfect'의 뜻은 무엇인가요?", a: "완벽한", c: ["완벽한", "부족한", "새로운"]},
+    {q: "'poster'의 뜻은 무엇인가요?", a: "포스터", c: ["포스터", "교과서", "생각"]},
+    {q: "'smart'의 뜻은 무엇인가요?", a: "똑똑한", c: ["똑똑한", "상냥한", "활동적인"]},
+    {q: "'thought'의 뜻은 무엇인가요?", a: "생각", c: ["생각", "과목", "대화"]},
+    {q: "'turtle'의 뜻은 무엇인가요?", a: "바다거북", c: ["바다거북", "꿀벌", "거짓말쟁이"]},
+    {q: "'a lot'의 뜻은 무엇인가요?", a: "많이", c: ["많이", "조금", "자주"]},
+    {q: "'sweet'의 두 번째 뜻(성격 등)은?", a: "상냥한", c: ["상냥한", "활동적인", "딱딱한"]},
 
-    // --- Grammar: be-verbs ---
-    {q: "Which be-verb goes with 'I'?", a: "am", c: ["am", "are", "is"]},
-    {q: "Which be-verb goes with 'You'?", a: "are", c: ["am", "are", "is"]},
-    {q: "Which be-verb goes with 'He / She / It'?", a: "is", c: ["am", "are", "is"]},
-    {q: "Which be-verb goes with 'We / They'?", a: "are", c: ["am", "are", "is"]},
-    {q: "What is the short form of 'is not'?", a: "isn't", c: ["isnt", "isn't", "is'not"]},
-    {q: "What is the short form of 'am not'?", a: "None (줄여 쓰지 않음)", c: ["amn't", "am not't", "None (줄여 쓰지 않음)"]},
-    {q: "What is the short form of 'They are'?", a: "they're", c: ["theyr'e", "they're", "their're"]},
+    // --- 영영풀이 (학생들이 단어를 맞히는 방식) ---
+    {q: "풀이: 'a talk between people'", a: "conversation", c: ["conversation", "thought", "subject"]},
+    {q: "풀이: 'without effort, pain, or trouble'", a: "easily", c: ["easily", "really", "perfect"]},
+    {q: "풀이: 'a bee that makes honey'", a: "honeybee", c: ["honeybee", "active", "turtle"]},
+    {q: "풀이: 'to get pleasure from something'", a: "enjoy", c: ["enjoy", "share", "active"]},
+    {q: "풀이: 'to use something with other people'", a: "share", c: ["share", "enjoy", "creative"]},
+    {q: "풀이: 'not having any mistakes or damage'", a: "perfect", c: ["perfect", "smart", "interesting"]},
 
-    // --- Grammar: General Verbs ---
-    {q: "3rd person singular: 'miss' becomes?", a: "misses", c: ["misses", "misss", "missies"]},
-    {q: "3rd person singular: 'fix' becomes?", a: "fixes", c: ["fixs", "fixies", "fixes"]},
-    {q: "3rd person singular: 'watch' becomes?", a: "watches", c: ["watchs", "watches", "watchies"]},
-    {q: "3rd person singular: 'cry' becomes?", a: "cries", c: ["cryes", "crys", "cries"]},
-    {q: "3rd person singular: 'try' becomes?", a: "tries", c: ["trys", "tries", "tryies"]},
-    {q: "Fill in: 'She ___ not enjoy it.'", a: "does", c: ["do", "does", "is"]},
-    {q: "Fill in: 'They ___ not like horror.'", a: "do", c: ["do", "does", "are"]}
+    // --- 문법: be동사 (image_7a4fa6.png 기반) ---
+    {q: "주어 'I'와 함께 쓰는 be동사는?", a: "am", c: ["am", "are", "is"]},
+    {q: "주어 'You'와 함께 쓰는 be동사는?", a: "are", c: ["am", "are", "is"]},
+    {q: "주어 'He / She / It'과 함께 쓰는 것은?", a: "is", c: ["am", "are", "is"]},
+    {q: "주어 'We / They'와 함께 쓰는 것은?", a: "are", c: ["am", "are", "is"]},
+    {q: " 'is not'의 줄임말은 무엇인가요?", a: "isn't", c: ["isnt", "isn't", "is'not"]},
+    {q: " 'am not'의 올바른 줄임말은?", a: "줄여 쓰지 않음", c: ["amn't", "am not't", "줄여 쓰지 않음"]},
+    {q: " 'They are'의 줄임말은?", a: "they're", c: ["theyr'e", "they're", "their're"]},
+
+    // --- 문법: 일반동사 3인칭 단수 (image_7a526c.png 기반) ---
+    {q: "3인칭 단수형: 'miss'는 어떻게 변할까요?", a: "fixes", c: ["misses", "misss", "missies"]},
+    {q: "3인칭 단수형: 'fix'는 어떻게 변할까요?", a: "fixes", c: ["fixs", "fixies", "fixes"]},
+    {q: "3인칭 단수형: 'watch'는 어떻게 변할까요?", a: "watches", c: ["watchs", "watches", "watchies"]},
+    {q: "3인칭 단수형: 'cry'는 어떻게 변할까요?", a: "cries", c: ["cryes", "crys", "cries"]},
+    {q: "3인칭 단수형: 'try'는 어떻게 변할까요?", a: "tries", c: ["trys", "tries", "tryies"]},
+    {q: "빈칸 채우기: 'She ___ not enjoy it.'", a: "does", c: ["do", "does", "is"]},
+    {q: "빈칸 채우기: 'They ___ not like horror.'", a: "do", c: ["do", "does", "are"]}
 ];
 
 let water = 0, houses = 0, selectedIdx = -1;
