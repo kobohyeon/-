@@ -94,7 +94,7 @@
 
 <script>
 const quizData = [
-    // --- 어휘 의미 (image_7a4e89.jpg 기반) ---
+    // --- 어휘 의미 ---
     {q: "'active'의 뜻은 무엇인가요?", a: "활동적인", c: ["활동적인", "조용한", "창의적인"]},
     {q: "'cartoon'의 뜻은 무엇인가요?", a: "만화", c: ["만화", "영화", "포스터"]},
     {q: "'conversation'의 뜻은 무엇인가요?", a: "대화", c: ["대화", "독백", "발표"]},
@@ -110,7 +110,7 @@ const quizData = [
     {q: "'a lot'의 뜻은 무엇인가요?", a: "많이", c: ["많이", "조금", "자주"]},
     {q: "'sweet'의 두 번째 뜻(성격 등)은?", a: "상냥한", c: ["상냥한", "활동적인", "딱딱한"]},
 
-    // --- 영영풀이 (학생들이 단어를 맞히는 방식) ---
+    // --- 영영풀이 ---
     {q: "풀이: 'a talk between people'", a: "conversation", c: ["conversation", "thought", "subject"]},
     {q: "풀이: 'without effort, pain, or trouble'", a: "easily", c: ["easily", "really", "perfect"]},
     {q: "풀이: 'a bee that makes honey'", a: "honeybee", c: ["honeybee", "active", "turtle"]},
@@ -118,7 +118,7 @@ const quizData = [
     {q: "풀이: 'to use something with other people'", a: "share", c: ["share", "enjoy", "creative"]},
     {q: "풀이: 'not having any mistakes or damage'", a: "perfect", c: ["perfect", "smart", "interesting"]},
 
-    // --- 문법: be동사 (image_7a4fa6.png 기반) ---
+    // --- 문법: be동사 ---
     {q: "주어 'I'와 함께 쓰는 be동사는?", a: "am", c: ["am", "are", "is"]},
     {q: "주어 'You'와 함께 쓰는 be동사는?", a: "are", c: ["am", "are", "is"]},
     {q: "주어 'He / She / It'과 함께 쓰는 것은?", a: "is", c: ["am", "are", "is"]},
@@ -127,8 +127,8 @@ const quizData = [
     {q: " 'am not'의 올바른 줄임말은?", a: "줄여 쓰지 않음", c: ["amn't", "am not't", "줄여 쓰지 않음"]},
     {q: " 'They are'의 줄임말은?", a: "they're", c: ["theyr'e", "they're", "their're"]},
 
-    // --- 문법: 일반동사 3인칭 단수 (image_7a526c.png 기반) ---
-    {q: "3인칭 단수형: 'miss'는 어떻게 변할까요?", a: "fixes", c: ["misses", "misss", "missies"]},
+    // --- 문법: 일반동사 3인칭 단수 ---
+    {q: "3인칭 단수형: 'miss'는 어떻게 변할까요?", a: "misses", c: ["misses", "misss", "missies"]},
     {q: "3인칭 단수형: 'fix'는 어떻게 변할까요?", a: "fixes", c: ["fixs", "fixies", "fixes"]},
     {q: "3인칭 단수형: 'watch'는 어떻게 변할까요?", a: "watches", c: ["watchs", "watches", "watchies"]},
     {q: "3인칭 단수형: 'cry'는 어떻게 변할까요?", a: "cries", c: ["cryes", "crys", "cries"]},
@@ -136,7 +136,7 @@ const quizData = [
     {q: "빈칸 채우기: 'She ___ not enjoy it.'", a: "does", c: ["do", "does", "is"]},
     {q: "빈칸 채우기: 'They ___ not like horror.'", a: "do", c: ["do", "does", "are"]}
 ];
-
+    
 let water = 0, houses = 0, selectedIdx = -1;
 let garden = Array(16).fill(0);
 const icons = ["", "🌱", "🌿", "🌷", "🌳", "🏡"];
