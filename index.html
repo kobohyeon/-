@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>고보현선생님과 함께 하는 복습 집 짓기 활동!!!</title>
+    <style>
+        :root { --main-bg: #f1f8e9; --accent: #2e7d32; }
+        body { margin: 0; background: var(--main-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
+        
+        /* 인트로 화면 스타일 */
+        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; box-sizing: border-box; }
+        #intro-overlay h1 { color: var(--accent); font-size: 2rem; margin-bottom: 20px; }
+        
+        /* 표(카드) 너비를 일정하게 맞춤 */
+        .info-card { 
+            background: #f9f9f9; 
+            padding: 18px; 
+            border-radius: 20px; 
+            border: 2px solid #e0e0e0; 
+            margin-bottom: 12px; 
+            width: 100%; /* 너비를 꽉 채우고 */
+            max-width: 420px; /* 최대 너비를 고정하여 3개가 같게 보이도록 함 */
+            text-align: left; 
+            box-sizing: border-box; /* 패딩이 너비에 영향을 주지 않도록 설정 */
+        }
+        .info-card h3 { margin-top: 0; color: #388e3c; border-bottom: 2px solid #a5d6a7; padding-bottom: 5px; font-size: 1.1rem; }
+        .info-card p { font-size: 0.9rem; line-height: 1.5; color: #444; margin: 8px 0 0 0; }
+        
+        /* 게임 UI 스타일 */
+        #header { width: 100%; max-width: 500px; padding: 15px; background: white; border-bottom: 5px solid #a5d6a7; display: flex; justify-content: space-around; font-weight: bold; font-size: 1.1rem; color: var(--accent); box-sizing: border-box; }
+        #garden { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 90%; max-width: 400px; margin: 20px 0; background: #c8e6c9; padding: 15px; border-radius: 25px; box-shadow: inset 0 5px 15px rgba(0,0,0,0.1); }
+        .slot { aspect-ratio: 1; background: #a5d6a7; border-radius: 15px; border: 2px dashed rgba(255,255,255,0.4); display: flex; justify-content: center; align-items: center; font-size: 2.2rem; cursor: pointer; transition: 0.2s; position: relative; }
+        .slot.has-item { background: white; border-style: solid; border-color: #81c784; box-shadow: 0 4px 0 #81c784; }
+        .slot.selected { border: 4px solid #fbc02d; background: #fff9c4; transform: scale(1.05); z-index: 10; box-shadow: 0 0 15px rgba(251, 192, 45, 0.5); }
+        
+        .main-btn { padding: 18px 45px; background: var(--accent); color: white; border-radius: 50px; border: none; font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 0 #1b5e20; margin-top: 10px; }
+        .main-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #1b5e20; }
+
+        /* 퀴즈 팝업 */
+        #quiz-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; }
+        #quiz-card { background: white; width: 85%; max-width: 380px; padding: 30px; border-radius: 30px; text-align: center; border: 6px solid var(--accent); }
+        .ans-btn { display: block; width: 100%; padding: 15px; margin: 12px 0; border: 2px solid #eee; border-radius: 15px; background: #fdfdfd; font-size: 1.1rem; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="intro-overlay">
+    <h1>🏡 Building a House with BOHYEON Teacher!</h1>
+    
+    <div class="info-card">
+        <h3>🎯 Learning Goals</h3>
+        <p>Review the key expressions and grammar we learned in this unit by solving quizzes!</p>
+    </div>
+
+    <div class="info-card">
+        <h3>🎮 How to Play</h3>
+        <p>1. Click the button to get <b>Items</b>.<br>
+           2. Click two items of the <b>SAME KIND</b> to evolve them.<br>
+           (Seed🌱 → Sprout🌿 → Flower🌷 → Tree🌳 → <b>House🏡</b>)</p>
+    </div>
+
+    <div class="info-card" style="border-color: #fbc02d; background: #fffde7;">
+        <h3>🏆 Special Reward</h3>
+        <p><b>The first 5 students</b> who build <b>3 HOUSES</b> will receive merit points!</p>
+    </div>
+
+    <button class="main-btn" onclick="startGame()">START GAME</button>
+</div>
+
+<div id="header">
+    <span>💧 Energy: <span id="water">0</span></span>
+    <span>🏡 Houses: <span id="house-count">0</span>/3</span>
+</div>
+
+<div id="garden">
+    <script>
+        for(let i=0; i<16; i++) document.write(`<div class="slot" id="slot-${i}" onclick="handleSlotClick(${i})"></div>`);
+    </script>
+</div>
+
+<div style="text-align: center;">
+    <button class="main-btn" onclick="openQuiz()">GET ITEM (Quiz)</button>
+    <p style="color:#666; font-size:0.9rem; margin-top:10px;">Evolve items to build 3 houses!</p>
+</div>
+
+<div id="quiz-overlay">
+    <div id="quiz-card">
+        <div id="reward-badge" style="display:none; color:#fbc02d; font-weight:bold; margin-bottom:10px;">🎁 Special Reward Box!</div>
+        <h2 id="q-text" style="margin-top:0;">Question</h2>
+        <div id="options"></div>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    // --- Vocabulary (23개 표현 반영) ---
+    {q: "What does 'active' mean?", a: "활동적인", c: ["활동적인", "조용한", "창의적인"]},
+    {q: "What does 'cartoon' mean?", a: "만화", c: ["만화", "영화", "포스터"]},
+    {q: "What does 'conversation' mean?", a: "대화", c: ["대화", "독백", "발표"]},
+    {q: "What does 'cotton candy' mean?", a: "솜사탕", c: ["솜사탕", "사탕발림", "꿀벌"]},
+    {q: "What does 'friendly' mean?", a: "친절한", c: ["친절한", "똑똑한", "흥미로운"]},
+    {q: "What does 'honeybee' mean?", a: "꿀벌", c: ["꿀벌", "바다거북", "개미"]},
+    {q: "What does 'liar' mean?", a: "거짓말쟁이", c: ["거짓말쟁이", "정직한 사람", "등장인물"]},
+    {q: "What does 'perfect' mean?", a: "완벽한", c: ["완벽한", "부족한", "새로운"]},
+    {q: "What does 'poster' mean?", a: "포스터", c: ["포스터", "교과서", "생각"]},
+    {q: "What does 'smart' mean?", a: "똑똑한", c: ["똑똑한", "상냥한", "활동적인"]},
+    {q: "What does 'thought' mean?", a: "생각", c: ["생각", "과목", "대화"]},
+    {q: "What does 'turtle' mean?", a: "바다거북", c: ["바다거북", "꿀벌", "거짓말쟁이"]},
+    {q: "What does 'a lot' mean?", a: "많이", c: ["많이", "조금", "자주"]},
+    {q: "What is the second meaning of 'sweet'?", a: "상냥한", c: ["상냥한", "활동적인", "딱딱한"]},
+    {q: "Meaning: 'a talk between people'", a: "conversation", c: ["conversation", "thought", "subject"]},
+    {q: "Meaning: 'without effort, pain, or trouble'", a: "easily", c: ["easily", "really", "perfect"]},
+    {q: "Meaning: 'a bee that makes honey'", a: "honeybee", c: ["honeybee", "active", "turtle"]},
+    {q: "Meaning: 'to get pleasure from something'", a: "enjoy", c: ["enjoy", "share", "active"]},
+    {q: "Meaning: 'to use something with other people'", a: "share", c: ["share", "enjoy", "creative"]},
+    {q: "Meaning: 'not having any mistakes or damage'", a: "perfect", c: ["perfect", "smart", "interesting"]},
+    {q: "Meaning: 'being in agreement'", a: "in harmony with", c: ["in harmony with", "a lot", "really"]},
+
+    // --- Grammar: be-verbs ---
+    {q: "Which be-verb goes with 'I'?", a: "am", c: ["am", "are", "is"]},
+    {q: "Which be-verb goes with 'You'?", a: "are", c: ["am", "are", "is"]},
+    {q: "Which be-verb goes with 'He / She / It'?", a: "is", c: ["am", "are", "is"]},
+    {q: "Which be-verb goes with 'We / They'?", a: "are", c: ["am", "are", "is"]},
+    {q: "What is the short form of 'is not'?", a: "isn't", c: ["isnt", "isn't", "is'not"]},
+    {q: "What is the short form of 'am not'?", a: "None (줄여 쓰지 않음)", c: ["amn't", "am not't", "None (줄여 쓰지 않음)"]},
+    {q: "What is the short form of 'They are'?", a: "they're", c: ["theyr'e", "they're", "their're"]},
+
+    // --- Grammar: General Verbs ---
+    {q: "3rd person singular: 'miss' becomes?", a: "misses", c: ["misses", "misss", "missies"]},
+    {q: "3rd person singular: 'fix' becomes?", a: "fixes", c: ["fixs", "fixies", "fixes"]},
+    {q: "3rd person singular: 'watch' becomes?", a: "watches", c: ["watchs", "watches", "watchies"]},
+    {q: "3rd person singular: 'cry' becomes?", a: "cries", c: ["cryes", "crys", "cries"]},
+    {q: "3rd person singular: 'try' becomes?", a: "tries", c: ["trys", "tries", "tryies"]},
+    {q: "Fill in: 'She ___ not enjoy it.'", a: "does", c: ["do", "does", "is"]},
+    {q: "Fill in: 'They ___ not like horror.'", a: "do", c: ["do", "does", "are"]}
+];
+
+let water = 0, houses = 0, selectedIdx = -1;
+let garden = Array(16).fill(0);
+const icons = ["", "🌱", "🌿", "🌷", "🌳", "🏡"];
+
+function startGame() { document.getElementById('intro-overlay').style.display = 'none'; }
+function openQuiz() {
+    const isSpecial = Math.random() < 0.2;
+    document.getElementById('reward-badge').style.display = isSpecial ? 'block' : 'none';
+    const q = quizData[Math.floor(Math.random() * quizData.length)];
+    document.getElementById('q-text').textContent = q.q;
+    const optBox = document.getElementById('options');
+    optBox.innerHTML = '';
+    [...q.c].sort(() => Math.random() - 0.5).forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'ans-btn';
+        btn.textContent = choice;
+        btn.onclick = () => {
+            if(choice === q.a) {
+                water++;
+                spawnItem(isSpecial ? (Math.random() < 0.5 ? 2 : 3) : 1);
+                updateUI();
+                document.getElementById('quiz-overlay').style.display = 'none';
+            } else { alert("Try again! 🌿"); }
+        };
+        optBox.appendChild(btn);
+    });
+    document.getElementById('quiz-overlay').style.display = 'flex';
+}
+function spawnItem(lv) {
+    const emptySlots = garden.map((v, i) => v === 0 ? i : null).filter(v => v !== null);
+    if(emptySlots.length === 0) { alert("Garden is full! Merge items."); return; }
+    garden[emptySlots[Math.floor(Math.random() * emptySlots.length)]] = lv;
+    updateGarden();
+}
+function handleSlotClick(idx) {
+    if (garden[idx] === 0 || garden[idx] >= 5) { selectedIdx = -1; updateGarden(); return; }
+    if (selectedIdx === -1) {
+        selectedIdx = idx; updateGarden();
+        document.getElementById(`slot-${idx}`).classList.add('selected');
+    } else if (selectedIdx === idx) { selectedIdx = -1; updateGarden(); }
+    else {
+        if (garden[selectedIdx] === garden[idx]) {
+            garden[idx] += 1; garden[selectedIdx] = 0;
+            if (garden[idx] === 5) { houses++; updateUI(); }
+            selectedIdx = -1; updateGarden();
+            setTimeout(() => { if(houses >= 3) alert("CONGRATULATIONS!\nYou built 3 houses!\nGo tell your teacher and get your reward! ✨🏡"); }, 100);
+        } else { selectedIdx = idx; updateGarden(); document.getElementById(`slot-${idx}`).classList.add('selected'); }
+    }
+}
+function updateUI() { document.getElementById('water').textContent = water; document.getElementById('house-count').textContent = houses; }
+function updateGarden() {
+    garden.forEach((v, i) => {
+        const slot = document.getElementById(`slot-${i}`);
+        slot.textContent = icons[v];
+        slot.className = 'slot';
+        if(v > 0) {
+            slot.classList.add('has-item');
+            slot.style.background = v === 5 ? "#fff9c4" : `rgba(255,255,255, ${0.4 + (v*0.15)})`;
+        } else { slot.style.background = "#a5d6a7"; }
+    });
+}
+updateGarden();
+</script>
+</body>
+</html>
