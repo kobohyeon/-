@@ -67,78 +67,78 @@
 <div id="quiz-overlay"><div id="quiz-card"><h4 id="q-level" style="margin:0; color:#888; font-size:0.8rem;"></h4><h3 id="q-text"></h3><div id="options"></div></div></div>
 
 <script>
-// 70문제 데이터 (보기가 3개인 문제와 4개인 문제를 섞어서 구성)
+// 중1 눈높이에 맞춰 지시어를 수정한 70문제 데이터
 const allQuestions = [
-    {q: "'lettuce' means?", a: "상추", c: ["상추", "양배추", "시금치"]},
-    {q: "'gym' means?", a: "체육관", c: ["체육관", "도서관", "운동장"]},
-    {q: "He ____ (run) now.", a: "is running", c: ["is running", "are running", "am running"]},
-    {q: "Which is NOT progressive?", a: "He is a student.", c: ["He is a student.", "I am singing.", "They are running.", "She is eating."], lv:"Hard"},
-    {q: "____ you watching TV?", a: "Are", c: ["Are", "Is", "Am"]},
-    {q: "Correct -ing for 'swim'?", a: "swimming", c: ["swimming", "swiming", "swimering"]},
-    {q: "Correct: 'She (not/cook) now.'", a: "is not cooking", c: ["is not cooking", "are not cooking", "doesn't cook", "is no cooking"], lv:"Hard"},
-    {q: "What ____ she doing?", a: "is", c: ["is", "are", "do"]},
-    {q: "They ____ (dance) now.", a: "are dancing", c: ["are dancing", "is dancing", "dancing"]},
+    {q: "What is the meaning(뜻) of 'lettuce'?", a: "상추", c: ["상추", "양배추", "시금치"]},
+    {q: "What is the meaning(뜻) of 'gym'?", a: "체육관", c: ["체육관", "도서관", "운동장"]},
+    {q: "Fill in the blank: He ____ (run) now.", a: "is running", c: ["is running", "are running", "am running"]},
+    {q: "Which sentence is NOT 'be + -ing' form?", a: "He is a student.", c: ["He is a student.", "I am singing.", "They are running.", "She is eating."], lv:"Hard"},
+    {q: "Fill in the blank: ____ you watching TV?", a: "Are", c: ["Are", "Is", "Am"]},
+    {q: "Correct -ing form for 'swim'?", a: "swimming", c: ["swimming", "swiming", "swimering"]},
+    {q: "Choose the correct 'NOT' sentence.", a: "is not cooking", c: ["is not cooking", "are not cooking", "doesn't cook", "is no cooking"], lv:"Hard"},
+    {q: "Fill in the blank: What ____ she doing?", a: "is", c: ["is", "are", "do"]},
+    {q: "Fill in the blank: They ____ (dance) now.", a: "are dancing", c: ["are dancing", "is dancing", "dancing"]},
     {q: "Is it raining? - No, it ____.", a: "isn't", c: ["isn't", "don't", "not"]},
-    {q: "Correct: '____ (Tom/work) today?'", a: "Is Tom working", c: ["Is Tom working", "Does Tom working", "Are Tom working", "Is Tom work"], lv:"Hard"},
-    {q: "She ____ (make) a cake.", a: "is making", c: ["is making", "is makeing", "makes"]},
-    {q: "'contest' means?", a: "대회", c: ["대회", "공부", "수업"]},
-    {q: "Wrong spelling -ing?", a: "makeing", c: ["makeing", "getting", "stopping", "flying"], lv:"Hard"},
-    {q: "I ____ (study) English.", a: "am studying", c: ["am studying", "is studying", "are studying"]},
-    {q: "____ they playing soccer?", a: "Are", c: ["Are", "Is", "Do"]},
-    {q: "I ____ (not/sleep). I'm awake.", a: "am not sleeping", c: ["am not sleeping", "is not sleeping", "don't sleep", "not sleeping"], lv:"Hard"},
-    {q: "Look! The cat ____ (sleep).", a: "is sleeping", c: ["is sleeping", "are sleeping", "sleeps"]},
-    {q: "Definition: 'exercise place'", a: "gym", c: ["gym", "office", "garden"]},
+    {q: "Question form: '____ (Tom/work) today?'", a: "Is Tom working", c: ["Is Tom working", "Does Tom working", "Are Tom working", "Is Tom work"], lv:"Hard"},
+    {q: "Fill in the blank: She ____ (make) a cake.", a: "is making", c: ["is making", "is makeing", "makes"]},
+    {q: "What is the meaning(뜻) of 'contest'?", a: "대회", c: ["대회", "공부", "수업"]},
+    {q: "Which -ing spelling is WRONG?", a: "makeing", c: ["makeing", "getting", "stopping", "flying"], lv:"Hard"},
+    {q: "Fill in the blank: I ____ (study) English.", a: "am studying", c: ["am studying", "is studying", "are studying"]},
+    {q: "Fill in the blank: ____ they playing soccer?", a: "Are", c: ["Are", "Is", "Do"]},
+    {q: "NOT sentence: I ____ (not/sleep).", a: "am not sleeping", c: ["am not sleeping", "is not sleeping", "don't sleep", "not sleeping"], lv:"Hard"},
+    {q: "Fill in the blank: Look! The cat ____ (sleep).", a: "is sleeping", c: ["is sleeping", "are sleeping", "sleeps"]},
+    {q: "Meaning: 'A place to exercise'", a: "gym", c: ["gym", "office", "garden"]},
     {q: "Find the error: 'They is jumping.'", a: "is", c: ["is", "They", "jumping", "no error"], lv:"Hard"},
-    {q: "'prepare' means?", a: "준비하다", c: ["준비하다", "정리하다", "시작하다"]},
-    {q: "Listen! She ____ (sing).", a: "is singing", c: ["is singing", "sings", "is singging"]},
-    {q: "What ____ (you/do) lately?", a: "are you doing", c: ["are you doing", "do you doing", "is you doing", "are you do"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'prepare'?", a: "준비하다", c: ["준비하다", "정리하다", "시작하다"]},
+    {q: "Fill in the blank: Listen! She ____ (sing).", a: "is singing", c: ["is singing", "sings", "is singging"]},
+    {q: "Question form: What ____ (you/do) lately?", a: "are you doing", c: ["are you doing", "do you doing", "is you doing", "are you do"], lv:"Hard"},
     {q: "Are you listening? - Yes, I ____.", a: "am", c: ["am", "is", "are"]},
-    {q: "Correct -ing for 'write'?", a: "writing", c: ["writing", "writeing", "writting"]},
-    {q: "Choose the correct sentence.", a: "Are they coming?", c: ["Are they coming?", "Is they coming?", "They coming?", "Are they come?"], lv:"Hard"},
-    {q: "We ____ (not eat) lunch.", a: "are not eating", c: ["are not eating", "is not eating", "not eating"]},
-    {q: "Definition: 'a competition'", a: "contest", c: ["contest", "practice", "lesson"]},
-    {q: "Correct -ing for 'die'?", a: "dying", c: ["dying", "dieing", "diing", "dyying"], lv:"Hard"},
-    {q: "'different' means?", a: "다른", c: ["다른", "어려운", "비슷한"]},
-    {q: "'together' means?", a: "함께", c: ["함께", "혼자", "항상"]},
-    {q: "Correct -ing for 'lie'?", a: "lying", c: ["lying", "lieing", "liing", "lyying"], lv:"Hard"},
-    {q: "It ____ (snow) outside.", a: "is snowing", c: ["is snowing", "are snowing", "snows"]},
-    {q: "____ your dad cooking?", a: "Is", c: ["Is", "Are", "Does"]},
-    {q: "Definition: 'to make something ready'", a: "prepare", c: ["prepare", "prevent", "present", "practice"], lv:"Hard"},
-    {q: "What are they ____ (do)?", a: "doing", c: ["doing", "do", "does"]},
-    {q: "Correct -ing for 'sit'?", a: "sitting", c: ["sitting", "siting", "sittin"]},
-    {q: "Which verb doubles last letter?", a: "stop", c: ["stop", "read", "jump", "walk"], lv:"Hard"},
-    {q: "I'm ____ (listen) to music.", a: "listening", c: ["listening", "listning", "listenning"]},
-    {q: "'delicious' means?", a: "맛있는", c: ["맛있는", "신선한", "매운"]},
-    {q: "Which verb does NOT double?", a: "help", c: ["help", "run", "swim", "get"], lv:"Hard"},
-    {q: "Are they ____ (come)?", a: "coming", c: ["coming", "comeing", "comming"]},
-    {q: "'garden' means?", a: "정원", c: ["정원", "농장", "공원"]},
-    {q: "They ____ (watch) a movie.", a: "are watching", c: ["are watching", "is watching", "am watching", "watch"], lv:"Hard"},
-    {q: "She is ____ (read) a book.", a: "reading", c: ["reading", "read", "reads"]},
-    {q: "Am I ____ (dream)?", a: "dreaming", c: ["dreaming", "dream", "dreams"]},
-    {q: "____ it ____ (rain) outside?", a: "Is, raining", c: ["Is, raining", "Does, rain", "Are, raining", "Is, rain"], lv:"Hard"},
-    {q: "____ the dogs barking?", a: "Are", c: ["Are", "Is", "Am"]},
-    {q: "Definition: 'very good taste'", a: "delicious", c: ["delicious", "bitter", "sour"]},
-    {q: "I ____ (study) hard for Unit 2.", a: "am studying", c: ["am studying", "am study", "is studying", "study"], lv:"Hard"},
-    {q: "'market' means?", a: "시장", c: ["시장", "가게", "도서관"]},
-    {q: "He is ____ (cut) paper.", a: "cutting", c: ["cutting", "cuting", "cuts"]},
-    {q: "Correct negative form?", a: "We are not going.", c: ["We are not going.", "We not going.", "We don't going.", "We aren't go."], lv:"Hard"},
-    {q: "We are ____ (wash) hands.", a: "washing", c: ["washing", "wash", "washes"]},
-    {q: "'honey' means?", a: "꿀", c: ["꿀", "설탕", "소금"]},
-    {q: "Choose 'different' antonym.", a: "same", c: ["same", "difficult", "various", "easy"], lv:"Hard"},
-    {q: "____ it raining now?", a: "Is", c: ["Is", "Are", "Does"]},
-    {q: "They are ____ (wait).", a: "waiting", c: ["waiting", "wait", "waits"]},
-    {q: "Correct -ing for 'dance'?", a: "dancing", c: ["dancing", "danceing", "danceting", "dancin"], lv:"Hard"},
-    {q: "Correct -ing for 'take'?", a: "taking", c: ["taking", "takeing", "takking"]},
-    {q: "'active' means?", a: "활동적인", c: ["활동적인", "조용한", "똑똑한"]},
-    {q: "What's the meaning of 'in harmony'?", a: "조화롭게", c: ["조화롭게", "시끄럽게", "바쁘게", "갑자기"], lv:"Hard"},
-    {q: "'healthy' means?", a: "건강한", c: ["건강한", "바쁜", "기쁜"]},
-    {q: "I am ____ (go) home.", a: "going", c: ["going", "go", "goes"]},
-    {q: "Is he ____ (help) you?", a: "helping", c: ["helping", "help", "helps"]},
-    {q: "'nature' means?", a: "자연", c: ["자연", "과학", "역사"]},
-    {q: "They ____ (not play).", a: "are not playing", c: ["are not playing", "is not playing", "not playing"]},
-    {q: "____ you wearing a hat?", a: "Are", c: ["Are", "Is", "Am"]},
-    {q: "Correct -ing for 'put'?", a: "putting", c: ["putting", "puting", "puts"]},
-    {q: "'fresh' means?", a: "신선한", c: ["신선한", "오래된", "딱딱한"]}
+    {q: "Correct -ing form for 'write'?", a: "writing", c: ["writing", "writeing", "writting"]},
+    {q: "Choose the CORRECT sentence.", a: "Are they coming?", c: ["Are they coming?", "Is they coming?", "They coming?", "Are they come?"], lv:"Hard"},
+    {q: "NOT sentence: We ____ (not eat) lunch.", a: "are not eating", c: ["are not eating", "is not eating", "not eating"]},
+    {q: "Meaning: 'A competition(대회)'", a: "contest", c: ["contest", "practice", "lesson"]},
+    {q: "Correct -ing form for 'die'?", a: "dying", c: ["dying", "dieing", "diing", "dyying"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'different'?", a: "다른", c: ["다른", "어려운", "비슷한"]},
+    {q: "What is the meaning(뜻) of 'together'?", a: "함께", c: ["함께", "혼자", "항상"]},
+    {q: "Correct -ing form for 'lie'?", a: "lying", c: ["lying", "lieing", "liing", "lyying"], lv:"Hard"},
+    {q: "Fill in the blank: It ____ (snow) outside.", a: "is snowing", c: ["is snowing", "are snowing", "snows"]},
+    {q: "Fill in the blank: ____ your dad cooking?", a: "Is", c: ["Is", "Are", "Does"]},
+    {q: "Meaning: 'to make something ready'", a: "prepare", c: ["prepare", "prevent", "present", "practice"], lv:"Hard"},
+    {q: "Fill in the blank: What are they ____ (do)?", a: "doing", c: ["doing", "do", "does"]},
+    {q: "Correct -ing form for 'sit'?", a: "sitting", c: ["sitting", "siting", "sittin"]},
+    {q: "Which verb doubles the last letter? (예: run->running)", a: "stop", c: ["stop", "read", "jump", "walk"], lv:"Hard"},
+    {q: "Fill in the blank: I'm ____ (listen) to music.", a: "listening", c: ["listening", "listning", "listenning"]},
+    {q: "What is the meaning(뜻) of 'delicious'?", a: "맛있는", c: ["맛있는", "신선한", "매운"]},
+    {q: "Which verb does NOT double the letter?", a: "help", c: ["help", "run", "swim", "get"], lv:"Hard"},
+    {q: "Fill in the blank: Are they ____ (come)?", a: "coming", c: ["coming", "comeing", "comming"]},
+    {q: "What is the meaning(뜻) of 'garden'?", a: "정원", c: ["정원", "농장", "공원"]},
+    {q: "Fill in the blank: They ____ (watch) a movie.", a: "are watching", c: ["are watching", "is watching", "am watching", "watch"], lv:"Hard"},
+    {q: "Fill in the blank: She is ____ (read) a book.", a: "reading", c: ["reading", "read", "reads"]},
+    {q: "Fill in the blank: Am I ____ (dream)?", a: "dreaming", c: ["dreaming", "dream", "dreams"]},
+    {q: "Question: ____ it ____ (rain) outside?", a: "Is, raining", c: ["Is, raining", "Does, rain", "Are, raining", "Is, rain"], lv:"Hard"},
+    {q: "Fill in the blank: ____ the dogs barking?", a: "Are", c: ["Are", "Is", "Am"]},
+    {q: "Meaning: 'Very good taste'", a: "delicious", c: ["delicious", "bitter", "sour"]},
+    {q: "Fill in the blank: I ____ (study) hard now.", a: "am studying", c: ["am studying", "am study", "is studying", "study"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'market'?", a: "시장", c: ["시장", "가게", "도서관"]},
+    {q: "Fill in the blank: He is ____ (cut) paper.", a: "cutting", c: ["cutting", "cuting", "cuts"]},
+    {q: "Which is the correct NOT sentence?", a: "We are not going.", c: ["We are not going.", "We not going.", "We don't going.", "We aren't go."], lv:"Hard"},
+    {q: "Fill in the blank: We are ____ (wash) hands.", a: "washing", c: ["washing", "wash", "washes"]},
+    {q: "What is the meaning(뜻) of 'honey'?", a: "꿀", c: ["꿀", "설탕", "소금"]},
+    {q: "Choose the opposite(반대말) of 'different'.", a: "same", c: ["same", "difficult", "various", "easy"], lv:"Hard"},
+    {q: "Fill in the blank: ____ it raining now?", a: "Is", c: ["Is", "Are", "Does"]},
+    {q: "Fill in the blank: They are ____ (wait).", a: "waiting", c: ["waiting", "wait", "waits"]},
+    {q: "Correct -ing form for 'dance'?", a: "dancing", c: ["dancing", "danceing", "danceting", "dancin"], lv:"Hard"},
+    {q: "Correct -ing form for 'take'?", a: "taking", c: ["taking", "takeing", "takking"]},
+    {q: "What is the meaning(뜻) of 'active'?", a: "활동적인", c: ["활동적인", "조용한", "똑똑한"]},
+    {q: "What is the meaning of 'in harmony'?", a: "조화롭게", c: ["조화롭게", "시끄럽게", "바쁘게", "갑자기"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'healthy'?", a: "건강한", c: ["건강한", "바쁜", "기쁜"]},
+    {q: "Fill in the blank: I am ____ (go) home.", a: "going", c: ["going", "go", "goes"]},
+    {q: "Fill in the blank: Is he ____ (help) you?", a: "helping", c: ["helping", "help", "helps"]},
+    {q: "What is the meaning(뜻) of 'nature'?", a: "자연", c: ["자연", "과학", "역사"]},
+    {q: "NOT sentence: They ____ (not play).", a: "are not playing", c: ["are not playing", "is not playing", "not playing"]},
+    {q: "Fill in the blank: ____ you wearing a hat?", a: "Are", c: ["Are", "Is", "Am"]},
+    {q: "Correct -ing form for 'put'?", a: "putting", c: ["putting", "puting", "puts"]},
+    {q: "What is the meaning(뜻) of 'fresh'?", a: "신선한", c: ["신선한", "오래된", "딱딱한"]}
 ];
 
 let usedQuestions = [];
@@ -150,28 +150,21 @@ function startGame() { document.getElementById('intro-overlay').style.display = 
 
 function openQuiz() {
     if(garden.filter(v => v === 0).length === 0) { alert("Garden is full! Merge items first. 🪴"); return; }
-    
-    // 퀴즈 풀이 비어있으면 초기화 및 완전 랜덤 셔플
     if(quizPool.length === 0) {
-        alert("All 70 questions finished! Great job. Resetting...");
+        alert("All 70 questions finished! Resetting...");
         quizPool = [...allQuestions];
         usedQuestions = [];
     }
-
     wrongCount = 0;
-    // 무작위 인덱스 선택 (배열 위치에 상관없이 뽑힘)
     const idx = Math.floor(Math.random() * quizPool.length);
     const q = quizPool.splice(idx, 1)[0];
     usedQuestions.push(q);
 
-    // 난이도에 따른 상단 텍스트 표시
     document.getElementById('q-level').textContent = q.lv === "Hard" ? "⭐ Hard Mode (4 Choices)" : "Standard Mode (3 Choices)";
     document.getElementById('q-text').textContent = q.q;
-    
     const optBox = document.getElementById('options');
     optBox.innerHTML = '';
     
-    // 보기 셔플 및 버튼 생성
     [...q.c].sort(() => Math.random() - 0.5).forEach(choice => {
         const btn = document.createElement('button');
         btn.className = 'ans-btn'; btn.textContent = choice;
