@@ -32,8 +32,8 @@
         <h3>🎯 Learning Goals</h3>
         <p style="margin-bottom: 8px;">Let's review what we learned:</p>
         <ul style="margin: 0; padding-left: 20px;">
-            <li><b>Be-verbs:</b> am, are, is and negative forms</li>
-            <li><b>General Verbs:</b> Usage and negative forms</li>
+            <li><b>Be-verbs:</b> am, are, is and NOT sentences</li>
+            <li><b>General Verbs:</b> he/she/it + -s/es forms</li>
             <li><b>Unit 1:</b> New words and expressions</li>
         </ul>
     </div>
@@ -64,31 +64,80 @@
 <div id="garden"><script>for(let i=0; i<16; i++) document.write(`<div class="slot" id="slot-${i}" onclick="handleSlotClick(${i})"></div>`);</script></div>
 <div style="text-align:center"><button id="quiz-btn" class="main-btn" onclick="openQuiz()">GET ITEM (Quiz)</button></div>
 
-<div id="quiz-overlay"><div id="quiz-card"><h3 id="q-text"></h3><div id="options"></div></div></div>
+<div id="quiz-overlay"><div id="quiz-card"><h4 id="q-level" style="margin:0; color:#888; font-size:0.8rem;"></h4><h3 id="q-text"></h3><div id="options"></div></div></div>
 
 <script>
-// 1과 문제 데이터
 const allQuestions = [
-    {q: "'active' means?", a: "활동적인", c: ["활동적인", "창의적인", "친절한"]},
-    {q: "'patient' means?", a: "참을성 있는", c: ["참을성 있는", "영리한", "완벽한"]},
-    {q: "Definition: 'a talk between people'", a: "conversation", c: ["conversation", "cartoon", "poster"]},
-    {q: "I ____ a student.", a: "am", c: ["am", "is", "are"]},
-    {q: "She ____ (study) English.", a: "studies", c: ["studies", "studys", "studyes"]},
-    {q: "He ____ (not like) horror movies.", a: "doesn't like", c: ["doesn't like", "don't like", "not likes"]},
-    {q: "Definition: 'a person who tells lies'", a: "liar", c: ["liar", "character", "honeybee"]},
-    {q: "'creative' means?", a: "창의적인", c: ["창의적인", "활동적인", "쉬운"]},
-    {q: "'subject' means?", a: "과목", c: ["과목", "생각", "포스터"]},
-    {q: "They ____ very active.", a: "are", c: ["are", "is", "am"]},
-    {q: "Definition: 'kind and helpful'", a: "friendly", c: ["friendly", "smart", "active"]},
-    {q: "My sister ____ (have) a cute dog.", a: "has", c: ["has", "have", "haves"]},
-    {q: "You ____ not my teacher.", a: "are", c: ["are", "is", "am"]},
-    {q: "'harmony' means?", a: "조화", c: ["조화", "성격", "대화"]},
-    {q: "Definition: 'a person in a book or movie'", a: "character", c: ["character", "author", "poster"]},
-    {q: "Birds ____ (fly) in the sky.", a: "fly", c: ["fly", "flies", "flys"]},
-    {q: "Tom ____ (not watch) TV.", a: "doesn't watch", c: ["doesn't watch", "don't watch", "not watch"]},
+    {q: "What is the meaning(뜻) of 'active'?", a: "활동적인", c: ["활동적인", "창의적인", "친절한"]},
+    {q: "What is the meaning(뜻) of 'patient'?", a: "참을성 있는", c: ["참을성 있는", "영리한", "완벽한"]},
+    {q: "Meaning: 'A talk between people'", a: "conversation", c: ["conversation", "cartoon", "poster"]},
+    {q: "Fill in the blank: I ____ a student.", a: "am", c: ["am", "is", "are"]},
+    {q: "Fill in the blank: She ____ (study) English.", a: "studies", c: ["studies", "studys", "studyes"]},
+    {q: "Choose the correct 'NOT' sentence.", a: "She doesn't swim.", c: ["She doesn't swim.", "She don't swim.", "She not swims.", "She doesn't swims."], lv:"Hard"},
+    {q: "Choose the NOT sentence: He ____ (not like) movies.", a: "doesn't like", c: ["doesn't like", "don't like", "not likes"]},
+    {q: "Meaning: 'A person who tells lies'", a: "liar", c: ["liar", "character", "honeybee"]},
+    {q: "What is the meaning(뜻) of 'creative'?", a: "창의적인", c: ["창의적인", "활동적인", "쉬운"]},
+    {q: "Find the be-verb error(틀린 것).", a: "They is happy.", c: ["They is happy.", "I am happy.", "He is happy.", "You are happy."], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'subject'?", a: "과목", c: ["과목", "생각", "포스터"]},
+    {q: "Fill in the blank: They ____ very active.", a: "are", c: ["are", "is", "am"]},
+    {q: "Meaning: 'Kind and helpful'", a: "friendly", c: ["friendly", "smart", "active"]},
+    {q: "Fill in the blank: My sister ____ (have) a dog.", a: "has", c: ["has", "have", "haves"]},
+    {q: "Correct form: He ____ (fix) cars.", a: "fixes", c: ["fixes", "fixs", "fix", "fixing"], lv:"Hard"},
+    {q: "NOT sentence: You ____ not my teacher.", a: "are", c: ["are", "is", "am"]},
+    {q: "What is the meaning(뜻) of 'harmony'?", a: "조화", c: ["조화", "성격", "대화"]},
+    {q: "Meaning: 'A person in a book or movie'", a: "character", c: ["character", "author", "poster"]},
+    {q: "Meaning: 'Very smart'", a: "clever", c: ["clever", "friendly", "active", "patient"], lv:"Hard"},
+    {q: "Fill in the blank: Birds ____ (fly) in the sky.", a: "fly", c: ["fly", "flies", "flys"]},
+    {q: "NOT sentence: Tom ____ (not watch) TV.", a: "doesn't watch", c: ["doesn't watch", "don't watch", "not watch"]},
     {q: "Is she happy? - Yes, she ____.", a: "is", c: ["is", "am", "are"]},
-    {q: "'perfect' means?", a: "완벽한", c: ["완벽한", "평범한", "어려운"]},
-    {q: "Definition: 'to make something new'", a: "create", c: ["create", "study", "wait"]}
+    {q: "Which one is a be-verb?", a: "is", c: ["is", "run", "study", "like"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'perfect'?", a: "완벽한", c: ["완벽한", "평범한", "어려운"]},
+    {q: "Meaning: 'To make something new'", a: "create", c: ["create", "study", "wait"]},
+    {q: "Question form: '____ you like art?'", a: "Do", c: ["Do", "Does", "Is", "Are"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'clever'?", a: "영리한", c: ["영리한", "용감한", "조용한"]},
+    {q: "Fill in the blank: We ____ (like) pizza.", a: "like", c: ["like", "likes", "liking"]},
+    {q: "Question form: '____ she have a pen?'", a: "Does", c: ["Does", "Do", "Is", "Has"], lv:"Hard"},
+    {q: "Fill in the blank: It ____ (be) cold today.", a: "is", c: ["is", "are", "am"]},
+    {q: "Meaning: 'To give food to animals'", a: "feed", c: ["feed", "feel", "feet"]},
+    {q: "NOT sentence: 'I am a teacher.'", a: "I am not a teacher.", c: ["I am not a teacher.", "I don't am a teacher.", "I not am a teacher.", "I doesn't be a teacher."], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'different'?", a: "다른", c: ["다른", "같은", "어려운"]},
+    {q: "Fill in the blank: He ____ (wash) his hands.", a: "washes", c: ["washes", "washs", "wash"]},
+    {q: "Which spelling is WRONG?", a: "studys", c: ["studys", "studies", "plays", "flies"], lv:"Hard"},
+    {q: "NOT sentence: Cats ____ (not bark).", a: "don't bark", c: ["don't bark", "doesn't bark", "not bark"]},
+    {q: "Meaning: 'A large yellow insect'", a: "honeybee", c: ["honeybee", "liar", "subject"]},
+    {q: "Meaning: 'To stay calm'", a: "patient", c: ["patient", "active", "creative", "friendly"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'brave'?", a: "용감한", c: ["용감한", "무서운", "슬픈"]},
+    {q: "Fill in the blank: They ____ (go) to school.", a: "go", c: ["go", "goes", "going"]},
+    {q: "Which verb takes -es? (He/She/It...)", a: "watch", c: ["watch", "play", "read", "like"], lv:"Hard"},
+    {q: "Question: Am I late? - Yes, you ____.", a: "are", c: ["are", "am", "is"]},
+    {q: "Meaning: 'A picture on the wall'", a: "poster", c: ["poster", "window", "door"]},
+    {q: "Fill in the blank: They ____ (not) here.", a: "are not", c: ["are not", "do not", "is not", "does not"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'boring'?", a: "지루한", c: ["지루한", "재미있는", "놀라운"]},
+    {q: "NOT sentence: She ____ (not eat) meat.", a: "doesn't eat", c: ["doesn't eat", "don't eat", "not eat"]},
+    {q: "Which is a correct NOT sentence?", a: "We don't go.", c: ["We don't go.", "We are not go.", "We doesn't go.", "We not go."], lv:"Hard"},
+    {q: "Fill in the blank: Are they friends? - Yes, they ____.", a: "are", c: ["are", "is", "am"]},
+    {q: "Meaning: 'Funny drawings in a book'", a: "cartoon", c: ["cartoon", "subject", "poster"]},
+    {q: "What is the opposite(반대말) of 'same'?", a: "different", c: ["different", "perfect", "subject", "harmony"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'kind'?", a: "친절한", c: ["친절한", "나쁜", "활동적인"]},
+    {q: "NOT sentence: I ____ (not know) him.", a: "don't know", c: ["don't know", "doesn't know", "not know"]},
+    {q: "Fill in the blank: He ____ (cry) a lot.", a: "cries", c: ["cries", "cryes", "crys", "crying"], lv:"Hard"},
+    {q: "Fill in the blank: Is it hot? - No, it ____.", a: "isn't", c: ["isn't", "aren't", "am not"]},
+    {q: "Meaning: 'Not easy'", a: "difficult", c: ["difficult", "easy", "active"]},
+    {q: "Question for 'She is a liar.'", a: "Is she a liar?", c: ["Is she a liar?", "Does she be a liar?", "She is a liar?", "Do she is a liar?"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'polite'?", a: "공손한", c: ["공손한", "활동적인", "똑똑한"]},
+    {q: "NOT sentence: We ____ (not have) a car.", a: "don't have", c: ["don't have", "doesn't have", "not have"]},
+    {q: "Fill in the blank: They ____ (run) fast.", a: "run", c: ["run", "runs", "is run", "running"], lv:"Hard"},
+    {q: "Are you okay? - Yes, I ____.", a: "am", c: ["am", "is", "are"]},
+    {q: "Meaning: 'A small town'", a: "village", c: ["village", "city", "country"]},
+    {q: "Meaning: 'A peaceful state'", a: "harmony", c: ["harmony", "subject", "village", "liar"], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'quiet'?", a: "조용한", c: ["조용한", "시끄러운", "빠른"]},
+    {q: "Fill in the blank: They ____ (play) soccer.", a: "play", c: ["play", "plays", "playing"]},
+    {q: "NOT sentence: It ____ (not/be) easy.", a: "is not", c: ["is not", "does not", "do not", "not is"], lv:"Hard"},
+    {q: "Fill in the blank: She ____ (be) my sister.", a: "is", c: ["is", "are", "am"]},
+    {q: "Meaning: 'To look at a book'", a: "read", c: ["read", "write", "speak"]},
+    {q: "Which sentence is CORRECT?", a: "She lives in Seoul.", c: ["She lives in Seoul.", "She live in Seoul.", "She living in Seoul.", "She is live in Seoul."], lv:"Hard"},
+    {q: "What is the meaning(뜻) of 'honest'?", a: "정직한", c: ["정직한", "용감한", "영리한"]},
+    {q: "Fill in the blank: I ____ (like) music.", a: "like", c: ["like", "likes", "liking"]}
 ];
 
 let usedQuestions = [];
@@ -101,6 +150,7 @@ function startGame() { document.getElementById('intro-overlay').style.display = 
 function openQuiz() {
     if(garden.filter(v => v === 0).length === 0) { alert("Garden is full! Merge items first. 🪴"); return; }
     if(quizPool.length === 0) {
+        alert("All 70 questions finished! Resetting...");
         quizPool = [...allQuestions];
         usedQuestions = [];
     }
@@ -108,15 +158,24 @@ function openQuiz() {
     const idx = Math.floor(Math.random() * quizPool.length);
     const q = quizPool.splice(idx, 1)[0];
     usedQuestions.push(q);
+
+    document.getElementById('q-level').textContent = q.lv === "Hard" ? "⭐ Hard Mode (4 Choices)" : "Standard Mode (3 Choices)";
     document.getElementById('q-text').textContent = q.q;
     const optBox = document.getElementById('options');
     optBox.innerHTML = '';
+    
     [...q.c].sort(() => Math.random() - 0.5).forEach(choice => {
         const btn = document.createElement('button');
         btn.className = 'ans-btn'; btn.textContent = choice;
         btn.onclick = () => {
-            if(choice === q.a) { spawnItem(Math.random()<0.9?1:2); document.getElementById('quiz-overlay').style.display = 'none'; }
-            else { wrongCount++; if(wrongCount>=2) startPenalty(q.a); else alert("Wrong! One more chance."); }
+            if(choice === q.a) { 
+                spawnItem(Math.random()<0.9?1:2); 
+                document.getElementById('quiz-overlay').style.display = 'none'; 
+            } else { 
+                wrongCount++; 
+                if(wrongCount>=2) startPenalty(q.a); 
+                else alert("Wrong! One more chance."); 
+            }
         };
         optBox.appendChild(btn);
     });
