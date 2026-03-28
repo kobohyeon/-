@@ -3,220 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Vocabulary Review with BOHYEON TEACHER</title>
+    <title>단어 복습 프로그램 vFinal</title>
     <style>
         :root { --red: #ff6b6b; --green: #51cf66; --blue: #007bff; }
-        body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f8f9fa; margin: 0; overflow: hidden; touch-action: none; transition: background-color 0.2s; }
+        body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f0f2f5; margin: 0; overflow: hidden; touch-action: none; transition: background-color 0.2s; }
         
-        /* 상단 상태바 */
-        .status { font-size: 1.3rem; color: #444; font-weight: 800; margin-bottom: 25px; user-select: none; }
+        /* 헤더: 숫자를 길게 눌러야 편집창 등장 */
+        .status { font-size: 1.2rem; color: #555; font-weight: bold; margin-bottom: 20px; user-select: none; -webkit-user-select: none; }
         
-        /* 태블릿용 대형 카드 */
-        #card-container { position: relative; width: 90vw; max-width: 500px; height: 350px; perspective: 1000px; }
-        .card { width: 100%; height: 100%; background: white; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 2px solid #eee; text-align: center; padding: 30px; box-sizing: border-box; transition: transform 0.2s, background-color 0.3s; }
+        #card-container { position: relative; width: 85vw; max-width: 400px; height: 280px; }
+        .card { position: relative; width: 100%; height: 100%; background: white; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.1); border: 2px solid #ddd; text-align: center; padding: 20px; box-sizing: border-box; transition: transform 0.2s, opacity 0.2s; }
         
-        #word-text { font-size: 3.5rem; font-weight: 800; color: #333; word-break: keep-all; }
-        #mean-text { font-size: 2.2rem; font-weight: 700; color: var(--blue); margin-top: 15px; display: none; }
-        #eng-def { font-size: 1.1rem; color: #666; margin-top: 15px; line-height: 1.4; display: none; font-style: italic; }
+        /* 뜻 확인 시 스타일 */
+        .is-showing-mean { color: var(--blue); border-color: var(--blue); background-color: #f8fbff; }
 
-        /* 조작 버튼 */
-        .controls { margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 25px; width: 100%; }
-        #view-btn { width: 280px; padding: 22px; font-size: 1.4rem; font-weight: bold; border: none; border-radius: 60px; background: var(--blue); color: white; box-shadow: 0 6px 20px rgba(0,123,255,0.4); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        /* 스와이프 시 나타나는 오버레이 텍스트 */
+        .swipe-label { position: absolute; font-size: 1.3rem; font-weight: bold; padding: 5px 10px; border-radius: 10px; opacity: 0; transition: opacity 0.1s; }
+        #label-left { top: 20px; right: 20px; color: var(--red); border: 2px solid var(--red); transform: rotate(15deg); }
+        #label-right { top: 20px; left: 20px; color: var(--green); border: 2px solid var(--green); transform: rotate(-15deg); }
+
+        .controls { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+        #view-btn { width: 220px; padding: 18px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 50px; background: var(--blue); color: white; box-shadow: 0 4px 15px rgba(0,123,255,0.3); cursor: pointer; -webkit-tap-highlight-color: transparent; }
         
-        .guide { display: flex; justify-content: space-between; width: 90vw; max-width: 500px; opacity: 0; transition: opacity 0.3s; font-size: 1.1rem; font-weight: bold; }
+        .guide { display: flex; justify-content: space-between; width: 85vw; max-width: 400px; opacity: 0; transition: opacity 0.3s; font-weight: bold; }
         .guide.visible { opacity: 1; }
 
-        /* 관리자 모드 (숫자 3초 클릭) */
-        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; }
-        .modal-content { background:white; padding:20px; border-radius:15px; width:90%; }
-        textarea { width:100%; height:300px; font-size:1rem; }
+        /* 관리자용 모달 */
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; touch-action: auto; }
+        .modal-content { background: white; padding: 20px; border-radius: 15px; width: 85%; max-width: 400px; }
+        textarea { width: 100%; height: 200px; margin: 10px 0; box-sizing: border-box; font-size: 1rem; }
     </style>
 </head>
 <body>
 
-    <div class="status" id="admin-trigger">학습 중: <span id="count">0</span> / <span id="total">0</span></div>
+    <div class="status" id="admin-trigger">남은 카드: <span id="count">0</span> / <span id="total">0</span></div>
     
     <div id="card-container">
-        <div class="card" id="main-card">
-            <div id="word-text">Loading...</div>
-            <div id="mean-text">뜻</div>
-            <div id="eng-def">English Definition</div>
-        </div>
+        <div id="label-left" class="swipe-label">다시 공부</div>
+        <div id="label-right" class="swipe-label">암기 완료</div>
+        
+        <div class="card" id="main-card">단어</div>
     </div>
 
     <div class="controls">
         <button id="view-btn">정답 확인하기</button>
         <div class="guide" id="guide-ui">
-            <span style="color:var(--red)">⬅️ 헷갈려요 (유지)</span>
-            <span style="color:var(--green)">알아요 (완료) ➡️</span>
+            <span style="color:var(--red)">⬅️ 다시 공부 (유지)</span>
+            <span style="color:var(--green)">암기 완료 (삭제) ➡️</span>
         </div>
     </div>
 
     <div id="modal">
         <div class="modal-content">
-            <h3>단어 데이터 편집</h3>
+            <h3>단어 편집 (관리자)</h3>
             <textarea id="bulk-input"></textarea>
-            <button onclick="saveData()" style="width:100%; padding:15px; margin-top:10px; background:var(--blue); color:white; border:none; border-radius:10px;">저장 및 초기화</button>
-            <button onclick="closeModal()" style="width:100%; padding:10px; margin-top:5px; background:#eee; border:none; border-radius:10px;">닫기</button>
+            <button onclick="saveData()" style="width:100%; padding:10px; background:var(--blue); color:white; border:none;">저장 후 닫기</button>
         </div>
     </div>
 
     <script>
-        // 이미지에서 추출한 데이터 내장
-        const defaultData = [
-            {w:"bubble", m:"거품", d:"A ball of air in a liquid"},
-            {w:"cafeteria", m:"구내식당", d:"A restaurant in a school or office"},
-            {w:"contest", m:"대회, 경연", d:"A competition to see who is the best"},
-            {w:"dust", m:"흙먼지", d:"Tiny pieces of dry dirt"},
-            {w:"even", m:"~까지도, ~조차", d:"Used to emphasize something surprising"},
-            {w:"event", m:"행사", d:"Something that happens, like a party or meeting"},
-            {w:"excited", m:"신난, 들뜬", d:"Feeling very happy and enthusiastic"},
-            {w:"follow", m:"뒤따르다", d:"To move behind someone or something"},
-            {w:"gym", m:"체육관", d:"A building for indoor sports"},
-            {w:"lettuce", m:"상추", d:"A green vegetable for salad"},
-            {w:"plant", m:"식물, 심다", d:"A living thing that grows in the earth"},
-            {w:"poem", m:"시", d:"A piece of writing with rhythm and beauty"},
-            {w:"practice", m:"연습하다", d:"To do something many times to get better"},
-            {w:"prepare", m:"준비하다", d:"To get ready for something"},
-            {w:"prize", m:"상, 상품", d:"Something you win in a contest"},
-            {w:"raise", m:"들어 올리다", d:"To move something to a higher position"},
-            {w:"ride", m:"타다", d:"To sit on and control a bike or animal"},
-            {w:"section", m:"구역", d:"A part of something"},
-            {w:"soon", m:"곧, 금방", d:"In a short time from now"},
-            {w:"special", m:"특별한", d:"Better or different from what is normal"},
-            {w:"stage", m:"무대", d:"The area where actors perform"},
-            {w:"through", m:"~을 통해", d:"Moving from one side to the other"},
-            {w:"tour", m:"관광", d:"A journey to visit different places"},
-            {w:"tunnel", m:"터널", d:"A long passage under the ground"},
-            {w:"rock climbing", m:"암벽 등반", d:"The sport of climbing rocks"},
-            {w:"active", m:"활동적인", d:"Busy doing many things"},
-            {w:"cartoon", m:"만화", d:"A funny drawing or animated film"},
-            {w:"character", m:"등장인물", d:"A person in a story or movie"},
-            {w:"conversation", m:"대화", d:"Talking between two or more people"},
-            {w:"creative", m:"창의적인", d:"Having new and original ideas"},
-            {w:"easily", m:"쉽게", d:"Without any difficulty"},
-            {w:"enjoy", m:"즐기다", d:"To get pleasure from something"},
-            {w:"friendly", m:"친절한", d:"Kind and pleasant"},
-            {w:"honeybee", m:"꿀벌", d:"An insect that makes honey"},
-            {w:"horror", m:"공포", d:"A very strong feeling of fear"},
-            {w:"interesting", m:"재미있는", d:"Keeping your attention because it is fun"},
-            {w:"liar", m:"거짓말쟁이", d:"A person who tells things that are not true"},
-            {w:"patient", m:"참을성 있는", d:"Able to stay calm and wait"},
-            {w:"perfect", m:"완벽한", d:"Without any faults or mistakes"},
-            {w:"poster", m:"포스터", d:"A large printed picture"},
-            {w:"really", m:"정말로", d:"In a real or very way"},
-            {w:"share", m:"공유하다", d:"To give a part of something to others"},
-            {w:"smart", m:"똑똑한", d:"Intelligent or good at learning"},
-            {w:"subject", m:"과목", d:"Something you study at school"},
-            {w:"sweet", m:"달콤한", d:"Having a taste like sugar"},
-            {w:"thought", m:"생각", d:"An idea or opinion"},
-            {w:"turtle", m:"바다거북", d:"An animal with a hard shell in the sea"},
-            {w:"a lot", m:"많이", d:"A large amount or number"},
-            {w:"in harmony with", m:"~와 조화하여", d:"In a way that agrees with others"}
-        ];
-
-        let cards = JSON.parse(localStorage.getItem('studyCards')) || [...defaultData];
-        let isShowing = false;
+        let initialData = [{word:"Apple", mean:"사과"}]; // 기본 데이터 (편집 가능)
+        let cards = JSON.parse(localStorage.getItem('myCards')) || [...initialData];
+        let isShowingMean = false;
         let startX = 0;
         let currentX = 0;
 
-        const wordTxt = document.getElementById('word-text');
-        const meanTxt = document.getElementById('mean-text');
-        const engTxt = document.getElementById('eng-def');
+        const mainCard = document.getElementById('main-card');
         const viewBtn = document.getElementById('view-btn');
         const countEl = document.getElementById('count');
         const totalEl = document.getElementById('total');
         const guideUi = document.getElementById('guide-ui');
-        const mainCard = document.getElementById('main-card');
+        const labelLeft = document.getElementById('label-left');
+        const labelRight = document.getElementById('label-right');
 
         function update() {
-            localStorage.setItem('studyCards', JSON.stringify(cards));
-            isShowing = false;
+            localStorage.setItem('myCards', JSON.stringify(cards));
+            localStorage.setItem('totalCardsCount', cards.length + (initialData.length - (JSON.parse(localStorage.getItem('myCards'))?.length || initialData.length))); 
+            isShowingMean = false;
             if (cards.length > 0) {
-                wordTxt.innerText = cards[0].w;
-                meanTxt.innerText = cards[0].m;
-                engTxt.innerText = cards[0].d;
-                
-                meanTxt.style.display = "none";
-                engTxt.style.display = "none";
+                mainCard.innerText = cards[0].word;
+                mainCard.classList.remove('is-showing-mean');
                 mainCard.style.transform = "translateX(0) rotate(0)";
-                mainCard.style.backgroundColor = "white";
-                
+                mainCard.style.opacity = "1";
                 countEl.innerText = cards.length;
-                totalEl.innerText = defaultData.length;
+                totalEl.innerText = JSON.parse(localStorage.getItem('totalCardsCount')) || initialData.length;
                 viewBtn.innerText = "정답 확인하기";
                 guideUi.classList.remove('visible');
-                document.body.style.backgroundColor = "#f8f9fa";
+                document.body.style.backgroundColor = "#f0f2f5";
+                labelLeft.style.opacity = 0;
+                labelRight.style.opacity = 0;
             } else {
-                wordTxt.innerText = "🎉 학습 완료!";
-                meanTxt.style.display = "none";
-                engTxt.innerText = "모든 단어를 마스터했습니다.";
-                engTxt.style.display = "block";
+                mainCard.innerText = "🎉 완료!";
+                countEl.innerText = 0;
                 viewBtn.style.display = "none";
+                document.body.style.backgroundColor = "#f0f2f5";
+                labelLeft.style.opacity = 0;
+                labelRight.style.opacity = 0;
             }
         }
 
+        // 1. 정답 확인 버튼
         viewBtn.addEventListener('click', () => {
             if (cards.length === 0) return;
-            isShowing = !isShowing;
-            if (isShowing) {
-                meanTxt.style.display = "block";
-                engTxt.style.display = "block";
-                viewBtn.innerText = "단어만 보기";
+            isShowingMean = !isShowingMean;
+            if (isShowingMean) {
+                mainCard.innerText = cards[0].mean;
+                mainCard.classList.add('is-showing-mean');
+                viewBtn.innerText = "단어 다시보기";
                 guideUi.classList.add('visible');
             } else {
-                meanTxt.style.display = "none";
-                engTxt.style.display = "none";
+                mainCard.innerText = cards[0].word;
+                mainCard.classList.remove('is-showing-mean');
                 viewBtn.innerText = "정답 확인하기";
                 guideUi.classList.remove('visible');
             }
         });
 
+        // 2. 스와이프 처리 (뜻을 본 상태에서만 작동)
         mainCard.addEventListener('touchstart', (e) => {
-            if (!isShowing) return;
+            if (!isShowingMean) return;
             startX = e.touches[0].clientX;
+            mainCard.style.transition = "none"; // 드래그 중에는 애니메이션 끔
         });
 
         mainCard.addEventListener('touchmove', (e) => {
-            if (!isShowing) return;
+            if (!isShowingMean) return;
             currentX = e.touches[0].clientX - startX;
-            mainCard.style.transform = `translateX(${currentX}px) rotate(${currentX/20}deg)`;
-            if (currentX > 50) document.body.style.backgroundColor = "#e6fcf5";
-            else if (currentX < -50) document.body.style.backgroundColor = "#fff5f5";
+            mainCard.style.transform = `translateX(${currentX}px) rotate(${currentX/15}deg)`;
+            
+            // 실시간 피드백 (배경색 및 라벨)
+            if (currentX > 50) { // 오른쪽 (암기완료)
+                document.body.style.backgroundColor = "#e6fcf5"; // 연한 초록색
+                labelRight.style.opacity = Math.min(currentX/150, 1);
+                labelLeft.style.opacity = 0;
+            } else if (currentX < -50) { // 왼쪽 (다시공부)
+                document.body.style.backgroundColor = "#fff5f5"; // 연한 빨간색
+                labelLeft.style.opacity = Math.min(Math.abs(currentX)/150, 1);
+                labelRight.style.opacity = 0;
+            } else {
+                document.body.style.backgroundColor = "#f0f2f5";
+                labelLeft.style.opacity = 0;
+                labelRight.style.opacity = 0;
+            }
         });
 
         mainCard.addEventListener('touchend', () => {
-            if (!isShowing) return;
+            if (!isShowingMean) return;
+            mainCard.style.transition = "transform 0.4s ease, opacity 0.3s"; // 부드러운 애니메이션 복원
+
+            // 판정 거리 강화 (120px 이상 밀어야 작동)
             if (Math.abs(currentX) > 120) {
-                if (currentX > 0) cards.shift();
-                else cards.push(cards.shift());
+                if (currentX > 0) { // 삭제 (초록색 방향)
+                    cards.shift();
+                } else { // 유지 (빨간색 방향)
+                    cards.push(cards.shift());
+                }
                 update();
             } else {
+                // 제자리로 복귀
                 mainCard.style.transform = "translateX(0) rotate(0)";
-                document.body.style.backgroundColor = "#f8f9fa";
+                document.body.style.backgroundColor = "#f0f2f5";
             }
+            // 라벨 숨기기
+            labelLeft.style.opacity = 0;
+            labelRight.style.opacity = 0;
             currentX = 0;
         });
 
-        // 관리자 모드
+        // 3. 관리자 모드 (기존과 동일)
         let adminTimer;
-        document.getElementById('admin-trigger').addEventListener('touchstart', () => {
+        const adminTrigger = document.getElementById('admin-trigger');
+        adminTrigger.addEventListener('touchstart', () => {
             adminTimer = setTimeout(() => {
-                document.getElementById('bulk-input').value = cards.map(c => `${c.w}:${c.m}:${c.d}`).join('\n');
+                document.getElementById('bulk-input').value = cards.map(c => `${c.word}:${c.mean}`).join('\n');
                 document.getElementById('modal').style.display = 'flex';
             }, 3000);
         });
-        document.getElementById('admin-trigger').addEventListener('touchend', () => clearTimeout(adminTimer));
+        adminTrigger.addEventListener('touchend', () => clearTimeout(adminTimer));
 
-        function closeModal() { document.getElementById('modal').style.display = 'none'; }
         function saveData() {
             const lines = document.getElementById('bulk-input').value.split('\n');
             cards = lines.map(l => {
                 const p = l.split(':');
-                return { w: p[0]?.trim(), m: p[1]?.trim(), d: p[2]?.trim() || "" };
-            }).filter(c => c.w && c.m);
+                return { word: p[0]?.trim(), mean: p[1]?.trim() };
+            }).filter(c => c.word && c.mean);
+            initialData = [...cards]; // 초기화
             update();
-            closeModal();
+            document.getElementById('modal').style.display = 'none';
         }
 
         update();
