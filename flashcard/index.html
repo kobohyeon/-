@@ -3,31 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>영단어 발음 마스터 v4.0</title>
+    <title>vocabulary review with BOHYEON TEACHER</title>
     <style>
         :root { --red: #ff6b6b; --green: #51cf66; --blue: #007bff; --gray: #868e96; }
         body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f0f2f5; margin: 0; overflow: hidden; touch-action: none; transition: background-color 0.2s; }
-        
         .status { font-size: 1.2rem; color: #555; font-weight: bold; margin-bottom: 20px; user-select: none; }
-        
         #card-container { position: relative; width: 85vw; max-width: 450px; height: 320px; cursor: pointer; }
         .card { position: relative; width: 100%; height: 100%; background: white; border-radius: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 2px solid #ddd; text-align: center; padding: 25px; box-sizing: border-box; transition: transform 0.2s, opacity 0.2s; }
-        
         #word-display { font-size: 3rem; font-weight: 800; color: #333; word-break: keep-all; }
         #mean-display { font-size: 1.8rem; font-weight: 700; color: var(--blue); margin-top: 15px; display: none; }
-        
-        /* 스피커 아이콘 표시 */
-        .speaker-icon { font-size: 1rem; color: #ccc; margin-top: 10px; font-weight: normal; }
-
+        .speaker-icon { font-size: 1rem; color: #bbb; margin-top: 15px; font-weight: normal; }
         .swipe-label { position: absolute; font-size: 1.2rem; font-weight: bold; padding: 6px 12px; border-radius: 10px; opacity: 0; z-index: 10; pointer-events: none; }
         #label-left { top: 20px; right: 20px; color: var(--red); border: 2.5px solid var(--red); transform: rotate(15deg); }
         #label-right { top: 20px; left: 20px; color: var(--green); border: 2.5px solid var(--green); transform: rotate(-15deg); }
-
         .controls { margin-top: 35px; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
         button { width: 240px; padding: 18px; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 60px; cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
         #view-btn { background: var(--blue); color: white; box-shadow: 0 5px 15px rgba(0,123,255,0.3); }
         #reset-btn { background: var(--gray); color: white; display: none; margin-top: 10px; }
-        
         .guide { display: flex; justify-content: space-between; width: 85vw; max-width: 450px; opacity: 0; transition: opacity 0.3s; font-weight: bold; font-size: 1rem; }
         .guide.visible { opacity: 1; }
     </style>
@@ -40,9 +32,9 @@
         <div id="label-left" class="swipe-label">다시 공부</div>
         <div id="label-right" class="swipe-label">암기 완료</div>
         <div class="card" id="main-card">
-            <div id="word-display">준비 중...</div>
+            <div id="word-display">터치하여 시작</div>
             <div id="mean-display">뜻</div>
-            <div class="speaker-icon">🔊 카드를 누르면 발음이 나와요</div>
+            <div class="speaker-icon">🔊 카드나 버튼을 누르면 발음이 나와요</div>
         </div>
     </div>
 
@@ -80,6 +72,7 @@
         let isShowingMean = false;
         let startX = 0;
         let currentX = 0;
+        let synth = window.speechSynthesis;
 
         const mainCard = document.getElementById('main-card');
         const wordDisplay = document.getElementById('word-display');
@@ -92,15 +85,17 @@
         const labelLeft = document.getElementById('label-left');
         const labelRight = document.getElementById('label-right');
 
-        // 🔊 발음하기 함수 (TTS)
+        // 발음 기능 안정화
         function speak(text) {
-            // 이미 말하고 있다면 멈추기
-            window.speechSynthesis.cancel();
+            if (!text || text.includes("완료") || text.includes("터치")) return;
             
+            synth.cancel(); // 이전 음성 중단
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US'; // 미국 영어 설정
-            utterance.rate = 0.8;    // 속도 약간 느리게 (학생들 듣기 좋게)
-            window.speechSynthesis.speak(utterance);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            
+            // 일부 안드로이드/iOS 기기 대응용 강제 재생
+            synth.speak(utterance);
         }
 
         function update() {
@@ -128,10 +123,18 @@
             }
         }
 
-        // 버튼 클릭 시 발음 + 정답 확인
-        viewBtn.addEventListener('click', () => {
+        // 초기 터치 시 오디오 권한 획득용 이벤트
+        window.addEventListener('touchstart', function() {
+            // 빈 음성을 한 번 재생하여 브라우저의 소리 잠금 해제
+            const silent = new SpeechSynthesisUtterance("");
+            synth.speak(silent);
+        }, { once: true });
+
+        viewBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (cards.length === 0) return;
-            if (!isShowingMean) speak(cards[0].w); // 정답 확인할 때 발음 들려주기
+            
+            if (!isShowingMean) speak(cards[0].w);
             
             isShowingMean = !isShowingMean;
             if (isShowingMean) {
@@ -145,14 +148,12 @@
             }
         });
 
-        // 카드 자체를 눌러도 언제든 발음 재생
-        mainCard.addEventListener('click', (e) => {
-            if (cards.length > 0 && Math.abs(currentX) < 10) { // 스와이프 중이 아닐 때만
+        mainCard.addEventListener('click', () => {
+            if (cards.length > 0 && Math.abs(currentX) < 10) {
                 speak(cards[0].w);
             }
         });
 
-        /* --- 스와이프 로직 (동일) --- */
         mainCard.addEventListener('touchstart', (e) => {
             if (!isShowingMean) return;
             startX = e.touches[0].clientX;
