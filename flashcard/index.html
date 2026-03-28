@@ -7,19 +7,13 @@
     <style>
         body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f0f2f5; margin: 0; overflow: hidden; touch-action: none; }
         .status { margin-bottom: 20px; font-size: 1.2rem; color: #555; font-weight: bold; }
-        
-        /* 카드 컨테이너 및 3D 설정 */
         #card-container { position: relative; width: 85vw; max-width: 400px; height: 280px; perspective: 1000px; }
-        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; }
+        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; cursor: pointer; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 1px solid #ddd; text-align: center; padding: 20px; box-sizing: border-box; background: white; }
-        
-        /* 뒷면 (뜻) */
-        .card-back { transform: rotateY(180deg); color: #007bff; background-color: #f8fbff; }
-        
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 2px solid #ddd; text-align: center; padding: 20px; box-sizing: border-box; background: white; }
+        .card-back { transform: rotateY(180deg); color: #007bff; background-color: #f8fbff; border-color: #007bff; }
         .info { margin-top: 40px; text-align: center; color: #888; font-size: 0.9rem; line-height: 1.6; }
-        .hint { margin-top: 15px; font-weight: bold; color: #555; }
+        .hint { margin-top: 15px; font-weight: bold; color: #333; background: #fff; padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -28,25 +22,23 @@
     
     <div id="card-container">
         <div class="card-inner" id="card-inner">
-            <div class="card-face card-front" id="front-text">Front</div>
-            <div class="card-face card-back" id="back-text">Back</div>
+            <div class="card-face card-front" id="front-text">단어</div>
+            <div class="card-face card-back" id="back-text">뜻</div>
         </div>
     </div>
 
     <div class="hint" id="guide-text">👆 카드를 터치해서 뜻을 확인하세요</div>
 
     <div class="info">
-        답을 본 후, 카드를 옆으로 밀어보세요!<br>
-        ⬅️ 헷갈려요 (유지) | 알아요 (삭제) ➡️
+        <b>왼쪽으로 밀기:</b> 헷갈려요 (유지)<br>
+        <b>오른쪽으로 밀기:</b> 알아요 (삭제)
     </div>
 
     <script>
-        // 학습 데이터 (단어, 뜻 분리)
         let cards = [
             { word: "Metaphor", mean: "은유, 비유" },
             { word: "Consistent", mean: "일관된" },
-            { word: "Linguistic", mean: "언어의, 언어학의" },
-            { word: "Pedagogy", mean: "교육학, 교수법" },
+            { word: "Pedagogy", mean: "교육학" },
             { word: "Efficient", mean: "효율적인" }
         ];
 
@@ -60,83 +52,92 @@
         let startX = 0;
         let currentX = 0;
         let isDragging = false;
+        let startTime = 0;
 
         function updateDisplay() {
             if (cards.length > 0) {
                 isFlipped = false;
                 cardInner.classList.remove('is-flipped');
-                cardInner.style.transform = "rotateY(0deg) translateX(0)";
+                cardInner.style.transform = "rotateY(0deg)";
                 cardInner.style.opacity = "1";
-                
                 frontText.innerText = cards[0].word;
                 backText.innerText = cards[0].mean;
                 countDisplay.innerText = cards.length;
                 guideText.innerText = "👆 카드를 터치해서 뜻을 확인하세요";
             } else {
                 frontText.innerText = "🎉 완료!";
-                backText.innerText = "수고하셨습니다!";
+                backText.innerText = "모두 외웠어요!";
                 countDisplay.innerText = 0;
-                guideText.innerText = "모든 카드를 학습했습니다.";
+                guideText.innerText = "복습이 끝났습니다.";
             }
         }
 
-        // 터치/클릭 처리
+        // 터치 시작
         cardInner.addEventListener('touchstart', (e) => {
             if (cards.length === 0) return;
             startX = e.touches[0].clientX;
+            startTime = Date.now();
             isDragging = true;
-        });
+            cardInner.style.transition = "none"; 
+        }, {passive: true});
 
+        // 터치 중 (이동)
         cardInner.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             currentX = e.touches[0].clientX - startX;
             
-            // 뜻을 확인한(뒤집힌) 상태에서만 스와이프 이동 시각화
+            // 뒤집힌 상태에서만 옆으로 밀리는 시각 효과
             if (isFlipped) {
                 const rotation = currentX / 10;
                 cardInner.style.transform = `rotateY(180deg) translateX(${currentX}px) rotateZ(${rotation}deg)`;
             }
-        });
+        }, {passive: true});
 
+        // 터치 종료
         cardInner.addEventListener('touchend', (e) => {
             if (!isDragging) return;
             isDragging = false;
+            const duration = Date.now() - startTime;
+            
+            cardInner.style.transition = "transform 0.4s ease, opacity 0.3s";
 
-            // 1. 단순 터치인 경우 (뒤집기)
-            if (Math.abs(currentX) < 10) {
+            // 1. 단순 클릭 판정 (짧게 터치하고 거의 안 움직였을 때)
+            if (Math.abs(currentX) < 15 && duration < 300) {
                 isFlipped = !isFlipped;
-                cardInner.classList.toggle('is-flipped');
-                guideText.innerText = isFlipped ? "↔️ 옆으로 밀어서 결과 처리" : "👆 다시 누르면 단어가 보여요";
+                if (isFlipped) {
+                    cardInner.classList.add('is-flipped');
+                    guideText.innerText = "↔️ 옆으로 밀어서 결과 처리";
+                } else {
+                    cardInner.classList.remove('is-flipped');
+                    guideText.innerText = "👆 카드를 터치해서 뜻을 확인하세요";
+                }
                 currentX = 0;
                 return;
             }
 
-            // 2. 스와이프 처리 (뒤집힌 상태에서만 작동하도록 권장)
+            // 2. 스와이프 처리 (뜻을 확인한 상태에서만)
             if (isFlipped) {
-                if (currentX > 100) { // 오른쪽: 알아요
-                    cardInner.style.transition = "0.4s";
-                    cardInner.style.transform = "rotateY(180deg) translateX(1000px)";
+                if (currentX > 100) { // 오른쪽 (삭제)
+                    cardInner.style.transform = `rotateY(180deg) translateX(1000px)`;
                     cardInner.style.opacity = "0";
                     setTimeout(() => {
                         cards.shift();
-                        cardInner.style.transition = "none";
                         updateDisplay();
-                    }, 400);
-                } else if (currentX < -100) { // 왼쪽: 헷갈려요
-                    cardInner.style.transition = "0.4s";
-                    cardInner.style.transform = "rotateY(180deg) translateX(-1000px)";
+                    }, 300);
+                } else if (currentX < -100) { // 왼쪽 (유지)
+                    cardInner.style.transform = `rotateY(180deg) translateX(-1000px)`;
                     cardInner.style.opacity = "0";
                     setTimeout(() => {
                         const missed = cards.shift();
                         cards.push(missed);
-                        cardInner.style.transition = "none";
                         updateDisplay();
-                    }, 400);
+                    }, 300);
                 } else {
+                    // 제자리 (충분히 밀지 않음)
                     cardInner.style.transform = "rotateY(180deg) translateX(0)";
                 }
             } else {
-                // 뒤집지 않고 밀었을 때 제자리로
+                // 뒤집지 않고 밀었을 때는 무조건 제자리
                 cardInner.style.transform = "rotateY(0deg) translateX(0)";
             }
             currentX = 0;
