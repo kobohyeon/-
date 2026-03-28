@@ -5,15 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>플래시카드 복습</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f0f2f5; margin: 0; overflow: hidden; touch-action: none; }
+        :root { --red: #ff6b6b; --green: #51cf66; --blue: #007bff; }
+        body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f0f2f5; margin: 0; overflow: hidden; touch-action: none; transition: background-color 0.3s; }
+        
         .status { margin-bottom: 20px; font-size: 1.2rem; color: #555; font-weight: bold; }
+        
+        /* 카드 및 컨테이너 */
         #card-container { position: relative; width: 85vw; max-width: 400px; height: 280px; perspective: 1000px; }
         .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.4s; transform-style: preserve-3d; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 2px solid #ddd; text-align: center; padding: 20px; box-sizing: border-box; background: white; pointer-events: none; } /* 내부 요소 터치 방해 금지 */
-        .card-back { transform: rotateY(180deg); color: #007bff; background-color: #f8fbff; border-color: #007bff; }
-        .info { margin-top: 40px; text-align: center; color: #888; font-size: 0.9rem; line-height: 1.6; }
-        .hint { margin-top: 15px; font-weight: bold; color: #333; background: #fff; padding: 8px 20px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.1); border: 1px solid #ddd; text-align: center; padding: 20px; box-sizing: border-box; background: white; }
+        .card-back { transform: rotateY(180deg); color: var(--blue); background-color: #f8fbff; border: 2px solid var(--blue); }
+        
+        /* 스와이프 시 나타나는 텍스트 오버레이 */
+        .swipe-label { position: absolute; top: 20px; font-size: 1.5rem; font-weight: bold; padding: 5px 15px; border-radius: 10px; opacity: 0; transition: opacity 0.1s; pointer-events: none; z-index: 10; }
+        #label-left { right: 20px; color: var(--red); border: 3px solid var(--red); transform: rotate(15deg); }
+        #label-right { left: 20px; color: var(--green); border: 3px solid var(--green); transform: rotate(-15deg); }
+
+        /* 하단 조작 영역 */
+        .controls { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+        #view-btn { width: 220px; padding: 18px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 50px; background: var(--blue); color: white; box-shadow: 0 4px 15px rgba(0,123,255,0.3); cursor: pointer; }
+        
+        /* 하단 가이드 가시성 개선 */
+        .guide-container { display: flex; justify-content: space-between; width: 85vw; max-width: 400px; opacity: 0; transition: opacity 0.3s; }
+        .guide-container.visible { opacity: 1; }
+        .guide-item { display: flex; flex-direction: column; align-items: center; font-size: 0.9rem; font-weight: bold; }
+        .guide-item.left { color: var(--red); }
+        .guide-item.right { color: var(--green); }
+        .arrow { font-size: 1.5rem; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -21,17 +40,28 @@
     <div class="status">남은 카드: <span id="count">0</span></div>
     
     <div id="card-container">
+        <div id="label-left" class="swipe-label">다시 공부</div>
+        <div id="label-right" class="swipe-label">암기 완료</div>
+        
         <div class="card-inner" id="card-inner">
-            <div class="card-face card-front" id="front-text">단어</div>
-            <div class="card-face card-back" id="back-text">뜻</div>
+            <div class="card-face card-front" id="front-text">Word</div>
+            <div class="card-face card-back" id="back-text">Meaning</div>
         </div>
     </div>
 
-    <div class="hint" id="guide-text">👆 터치해서 뜻 확인</div>
-
-    <div class="info">
-        <b>뜻을 본 후 옆으로 밀어주세요:</b><br>
-        ⬅️ 헷갈려요 (유지) | 알아요 (삭제) ➡️
+    <div class="controls">
+        <button id="view-btn">정답 확인하기</button>
+        
+        <div class="guide-container" id="guide-container">
+            <div class="guide-item left">
+                <span class="arrow">⬅️</span>
+                <span>모름 (유지)</span>
+            </div>
+            <div class="guide-item right">
+                <span class="arrow">➡️</span>
+                <span>앎 (삭제)</span>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -43,98 +73,100 @@
         ];
 
         const cardInner = document.getElementById('card-inner');
+        const viewBtn = document.getElementById('view-btn');
+        const guideContainer = document.getElementById('guide-container');
+        const labelLeft = document.getElementById('label-left');
+        const labelRight = document.getElementById('label-right');
         const frontText = document.getElementById('front-text');
         const backText = document.getElementById('back-text');
         const countDisplay = document.getElementById('count');
-        const guideText = document.getElementById('guide-text');
 
         let isFlipped = false;
         let startX = 0;
-        let startY = 0; // Y축 이동도 감지해서 오작동 방지
         let currentX = 0;
         let isDragging = false;
 
         function updateDisplay() {
             if (cards.length > 0) {
                 isFlipped = false;
-                cardInner.style.transition = "transform 0.4s";
                 cardInner.classList.remove('is-flipped');
                 cardInner.style.transform = "rotateY(0deg) translateX(0)";
                 cardInner.style.opacity = "1";
+                document.body.style.backgroundColor = "#f0f2f5";
                 frontText.innerText = cards[0].word;
                 backText.innerText = cards[0].mean;
                 countDisplay.innerText = cards.length;
-                guideText.innerText = "👆 터치해서 뜻 확인";
+                viewBtn.innerText = "정답 확인하기";
+                viewBtn.style.visibility = "visible";
+                guideContainer.classList.remove('visible');
             } else {
                 frontText.innerText = "🎉 완료!";
-                backText.innerText = "복습 끝!";
-                countDisplay.innerText = 0;
-                guideText.innerText = "모든 카드를 학습했습니다.";
+                backText.innerText = "수고하셨습니다!";
+                viewBtn.style.visibility = "hidden";
+                guideContainer.classList.remove('visible');
             }
         }
 
-        // 터치 시작
-        cardInner.addEventListener('touchstart', (e) => {
-            if (cards.length === 0) return;
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            isDragging = true;
-            cardInner.style.transition = "none"; 
+        viewBtn.addEventListener('click', () => {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                cardInner.classList.add('is-flipped');
+                viewBtn.innerText = "단어 다시보기";
+                guideContainer.classList.add('visible');
+            } else {
+                cardInner.classList.remove('is-flipped');
+                viewBtn.innerText = "정답 확인하기";
+                guideContainer.classList.remove('visible');
+            }
         });
 
-        // 터치 중
+        cardInner.addEventListener('touchstart', (e) => {
+            if (!isFlipped) return;
+            startX = e.touches[0].clientX;
+            isDragging = true;
+            cardInner.style.transition = "none";
+        });
+
         cardInner.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             currentX = e.touches[0].clientX - startX;
-            
-            // 뜻을 확인한 상태에서만 옆으로 이동 효과 보이기
-            if (isFlipped) {
-                const rotation = currentX / 10;
-                cardInner.style.transform = `rotateY(180deg) translateX(${currentX}px) rotateZ(${rotation}deg)`;
+            const rotation = currentX / 10;
+            cardInner.style.transform = `rotateY(180deg) translateX(${currentX}px) rotateZ(${rotation}deg)`;
+
+            // 실시간 피드백 (배경색 및 라벨)
+            if (currentX > 50) { // 오른쪽 (암기완료)
+                document.body.style.backgroundColor = "#e6fcf5";
+                labelRight.style.opacity = Math.min(currentX / 150, 1);
+                labelLeft.style.opacity = 0;
+            } else if (currentX < -50) { // 왼쪽 (다시공부)
+                document.body.style.backgroundColor = "#fff5f5";
+                labelLeft.style.opacity = Math.min(Math.abs(currentX) / 150, 1);
+                labelRight.style.opacity = 0;
+            } else {
+                document.body.style.backgroundColor = "#f0f2f5";
+                labelLeft.style.opacity = 0;
+                labelRight.style.opacity = 0;
             }
         });
 
-        // 터치 종료
-        cardInner.addEventListener('touchend', (e) => {
+        cardInner.addEventListener('touchend', () => {
             if (!isDragging) return;
             isDragging = false;
-            
-            const endY = e.changedTouches[0].clientY;
-            const diffY = Math.abs(endY - startY);
-            const diffX = Math.abs(currentX);
-
             cardInner.style.transition = "transform 0.4s ease, opacity 0.3s";
+            labelLeft.style.opacity = 0;
+            labelRight.style.opacity = 0;
 
-            // 1. 클릭 판정 (움직임이 거의 없을 때만 뒤집기)
-            if (diffX < 10 && diffY < 10) {
-                isFlipped = !isFlipped;
-                if (isFlipped) {
-                    cardInner.classList.add('is-flipped');
-                    cardInner.style.transform = "rotateY(180deg)";
-                    guideText.innerText = "↔️ 옆으로 밀어 결과 선택";
-                } else {
-                    cardInner.classList.remove('is-flipped');
-                    cardInner.style.transform = "rotateY(0deg)";
-                    guideText.innerText = "👆 터치해서 뜻 확인";
-                }
-                currentX = 0;
-                return;
-            }
-
-            // 2. 스와이프 판정 (반드시 뜻을 확인한 뒤에만 작동)
-            if (isFlipped && diffX > 80) {
+            if (Math.abs(currentX) > 100) {
                 if (currentX > 0) { // 오른쪽 (삭제)
-                    cardInner.style.transform = `rotateY(180deg) translateX(1000px)`;
-                    cardInner.style.opacity = "0";
+                    cardInner.style.transform = "rotateY(180deg) translateX(1000px)";
                     setTimeout(() => { cards.shift(); updateDisplay(); }, 300);
                 } else { // 왼쪽 (유지)
-                    cardInner.style.transform = `rotateY(180deg) translateX(-1000px)`;
-                    cardInner.style.opacity = "0";
+                    cardInner.style.transform = "rotateY(180deg) translateX(-1000px)";
                     setTimeout(() => { cards.push(cards.shift()); updateDisplay(); }, 300);
                 }
             } else {
-                // 제자리로 (뒤집힌 상태 유지 또는 앞면 상태 유지)
-                cardInner.style.transform = isFlipped ? "rotateY(180deg) translateX(0)" : "rotateY(0deg) translateX(0)";
+                cardInner.style.transform = "rotateY(180deg) translateX(0)";
+                document.body.style.backgroundColor = "#f0f2f5";
             }
             currentX = 0;
         });
