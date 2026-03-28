@@ -8,12 +8,12 @@
         body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f0f2f5; margin: 0; overflow: hidden; touch-action: none; }
         .status { margin-bottom: 20px; font-size: 1.2rem; color: #555; font-weight: bold; }
         #card-container { position: relative; width: 85vw; max-width: 400px; height: 280px; perspective: 1000px; }
-        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; cursor: pointer; }
+        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.4s; transform-style: preserve-3d; }
         .card-inner.is-flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 2px solid #ddd; text-align: center; padding: 20px; box-sizing: border-box; background: white; }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 2px solid #ddd; text-align: center; padding: 20px; box-sizing: border-box; background: white; pointer-events: none; } /* 내부 요소 터치 방해 금지 */
         .card-back { transform: rotateY(180deg); color: #007bff; background-color: #f8fbff; border-color: #007bff; }
         .info { margin-top: 40px; text-align: center; color: #888; font-size: 0.9rem; line-height: 1.6; }
-        .hint { margin-top: 15px; font-weight: bold; color: #333; background: #fff; padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .hint { margin-top: 15px; font-weight: bold; color: #333; background: #fff; padding: 8px 20px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -27,11 +27,11 @@
         </div>
     </div>
 
-    <div class="hint" id="guide-text">👆 카드를 터치해서 뜻을 확인하세요</div>
+    <div class="hint" id="guide-text">👆 터치해서 뜻 확인</div>
 
     <div class="info">
-        <b>왼쪽으로 밀기:</b> 헷갈려요 (유지)<br>
-        <b>오른쪽으로 밀기:</b> 알아요 (삭제)
+        <b>뜻을 본 후 옆으로 밀어주세요:</b><br>
+        ⬅️ 헷갈려요 (유지) | 알아요 (삭제) ➡️
     </div>
 
     <script>
@@ -50,25 +50,26 @@
 
         let isFlipped = false;
         let startX = 0;
+        let startY = 0; // Y축 이동도 감지해서 오작동 방지
         let currentX = 0;
         let isDragging = false;
-        let startTime = 0;
 
         function updateDisplay() {
             if (cards.length > 0) {
                 isFlipped = false;
+                cardInner.style.transition = "transform 0.4s";
                 cardInner.classList.remove('is-flipped');
-                cardInner.style.transform = "rotateY(0deg)";
+                cardInner.style.transform = "rotateY(0deg) translateX(0)";
                 cardInner.style.opacity = "1";
                 frontText.innerText = cards[0].word;
                 backText.innerText = cards[0].mean;
                 countDisplay.innerText = cards.length;
-                guideText.innerText = "👆 카드를 터치해서 뜻을 확인하세요";
+                guideText.innerText = "👆 터치해서 뜻 확인";
             } else {
                 frontText.innerText = "🎉 완료!";
-                backText.innerText = "모두 외웠어요!";
+                backText.innerText = "복습 끝!";
                 countDisplay.innerText = 0;
-                guideText.innerText = "복습이 끝났습니다.";
+                guideText.innerText = "모든 카드를 학습했습니다.";
             }
         }
 
@@ -76,69 +77,64 @@
         cardInner.addEventListener('touchstart', (e) => {
             if (cards.length === 0) return;
             startX = e.touches[0].clientX;
-            startTime = Date.now();
+            startY = e.touches[0].clientY;
             isDragging = true;
             cardInner.style.transition = "none"; 
-        }, {passive: true});
+        });
 
-        // 터치 중 (이동)
+        // 터치 중
         cardInner.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             currentX = e.touches[0].clientX - startX;
             
-            // 뒤집힌 상태에서만 옆으로 밀리는 시각 효과
+            // 뜻을 확인한 상태에서만 옆으로 이동 효과 보이기
             if (isFlipped) {
                 const rotation = currentX / 10;
                 cardInner.style.transform = `rotateY(180deg) translateX(${currentX}px) rotateZ(${rotation}deg)`;
             }
-        }, {passive: true});
+        });
 
         // 터치 종료
         cardInner.addEventListener('touchend', (e) => {
             if (!isDragging) return;
             isDragging = false;
-            const duration = Date.now() - startTime;
             
+            const endY = e.changedTouches[0].clientY;
+            const diffY = Math.abs(endY - startY);
+            const diffX = Math.abs(currentX);
+
             cardInner.style.transition = "transform 0.4s ease, opacity 0.3s";
 
-            // 1. 단순 클릭 판정 (짧게 터치하고 거의 안 움직였을 때)
-            if (Math.abs(currentX) < 15 && duration < 300) {
+            // 1. 클릭 판정 (움직임이 거의 없을 때만 뒤집기)
+            if (diffX < 10 && diffY < 10) {
                 isFlipped = !isFlipped;
                 if (isFlipped) {
                     cardInner.classList.add('is-flipped');
-                    guideText.innerText = "↔️ 옆으로 밀어서 결과 처리";
+                    cardInner.style.transform = "rotateY(180deg)";
+                    guideText.innerText = "↔️ 옆으로 밀어 결과 선택";
                 } else {
                     cardInner.classList.remove('is-flipped');
-                    guideText.innerText = "👆 카드를 터치해서 뜻을 확인하세요";
+                    cardInner.style.transform = "rotateY(0deg)";
+                    guideText.innerText = "👆 터치해서 뜻 확인";
                 }
                 currentX = 0;
                 return;
             }
 
-            // 2. 스와이프 처리 (뜻을 확인한 상태에서만)
-            if (isFlipped) {
-                if (currentX > 100) { // 오른쪽 (삭제)
+            // 2. 스와이프 판정 (반드시 뜻을 확인한 뒤에만 작동)
+            if (isFlipped && diffX > 80) {
+                if (currentX > 0) { // 오른쪽 (삭제)
                     cardInner.style.transform = `rotateY(180deg) translateX(1000px)`;
                     cardInner.style.opacity = "0";
-                    setTimeout(() => {
-                        cards.shift();
-                        updateDisplay();
-                    }, 300);
-                } else if (currentX < -100) { // 왼쪽 (유지)
+                    setTimeout(() => { cards.shift(); updateDisplay(); }, 300);
+                } else { // 왼쪽 (유지)
                     cardInner.style.transform = `rotateY(180deg) translateX(-1000px)`;
                     cardInner.style.opacity = "0";
-                    setTimeout(() => {
-                        const missed = cards.shift();
-                        cards.push(missed);
-                        updateDisplay();
-                    }, 300);
-                } else {
-                    // 제자리 (충분히 밀지 않음)
-                    cardInner.style.transform = "rotateY(180deg) translateX(0)";
+                    setTimeout(() => { cards.push(cards.shift()); updateDisplay(); }, 300);
                 }
             } else {
-                // 뒤집지 않고 밀었을 때는 무조건 제자리
-                cardInner.style.transform = "rotateY(0deg) translateX(0)";
+                // 제자리로 (뒤집힌 상태 유지 또는 앞면 상태 유지)
+                cardInner.style.transform = isFlipped ? "rotateY(180deg) translateX(0)" : "rotateY(0deg) translateX(0)";
             }
             currentX = 0;
         });
